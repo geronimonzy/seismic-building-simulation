@@ -2,7 +2,7 @@ Here's my recommended order of importance, grouped into tiers:
                                                                 
   Tier 1: Do First (Foundation & Safety Net)                    
   Rank: 1                                                       
-  Task: 11 - CI/CD Pipeline                                     
+  Task: 11 - CI/CD Pipeline                                     1
   Rationale: Low effort (1-2 days), catches bugs immediately.   
     Every subsequent change gets tested automatically.          
   ────────────────────────────────────────                      
