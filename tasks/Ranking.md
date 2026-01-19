@@ -1,16 +1,16 @@
 Here's my recommended order of importance, grouped into tiers:
-                                                                
-  Tier 1: Do First (Foundation & Safety Net)                    
-  Rank: 1                                                       
-  Task: 11 - CI/CD Pipeline                                     1
-  Rationale: Low effort (1-2 days), catches bugs immediately.   
-    Every subsequent change gets tested automatically.          
-  ────────────────────────────────────────                      
-  Rank: 2                                                       
-  Task: 10 - Expanded Tests                                     
-  Rationale: Without tests, CI is useless. Numerical accuracy   
-    tests prevent silent correctness bugs.                      
-  ────────────────────────────────────────                      
+
+  Tier 1: Do First (Foundation & Safety Net)
+  Rank: 1
+  Task: 11 - CI/CD Pipeline  ✅ COMPLETE
+  Rationale: Low effort (1-2 days), catches bugs immediately.
+    Every subsequent change gets tested automatically.
+  ────────────────────────────────────────
+  Rank: 2
+  Task: 10 - Expanded Tests  ✅ COMPLETE
+  Rationale: Without tests, CI is useless. Numerical accuracy
+    tests prevent silent correctness bugs.
+  ────────────────────────────────────────
   Rank: 3                                                       
   Task: 07 - Numba Integration                                  
   Rationale: 50-100x speedup makes the package actually usable  
@@ -80,14 +80,14 @@ Here's my recommended order of importance, grouped into tiers:
   base                                                          
      initially.                                                 
   ---                                                           
-  My Top 5 "Bang for Buck"                                      
-                                                                
-  If I had to pick just 5 tasks to transform this package:      
-                                                                
-  1. CI/CD - 1-2 days, permanent quality improvement            
-  2. Numba - 3-4 days, makes the tool usable at scale           
-  3. Tests - Confidence to refactor and extend                  
-  4. Notebooks - Users can actually learn to use it             
+  My Top 5 "Bang for Buck"
+
+  If I had to pick just 5 tasks to transform this package:
+
+  1. CI/CD - 1-2 days, permanent quality improvement  ✅ DONE
+  2. Numba - 3-4 days, makes the tool usable at scale
+  3. Tests - Confidence to refactor and extend  ✅ DONE
+  4. Notebooks - Users can actually learn to use it
   5. HDF5 Storage - Reproducible research                       
                                                                 
   The advanced features (nonlinear, SSI) are impressive but the 

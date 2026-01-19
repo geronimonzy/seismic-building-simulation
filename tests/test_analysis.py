@@ -3,6 +3,7 @@
 import numpy as np
 
 from seismic_twin.analysis import compute_demand_metrics, newmark_beta
+from seismic_twin.analysis.integration import modal_superposition
 from seismic_twin.analysis.metrics import compute_correlation, compute_nrmse
 from seismic_twin.building import MDOFShearBuilding
 
@@ -274,3 +275,78 @@ class TestMetricFunctions:
 
         corr = compute_correlation(signal1, signal2)
         assert abs(corr) < 0.1  # Should be near zero
+
+
+class TestModalSuperposition:
+    """Test cases for modal superposition method."""
+
+    def test_modal_superposition_output_shape(self):
+        """Test that output arrays have correct shape."""
+        building = MDOFShearBuilding(
+            masses=np.array([1000.0, 1000.0, 1000.0]),
+            stiffnesses=np.array([50000.0, 50000.0, 50000.0]),
+            damping_ratio=0.05,
+        )
+
+        n_steps = 500
+        dt = 0.01
+        ground_acc = np.random.randn(n_steps) * 0.1
+
+        result = modal_superposition(
+            M=building.M,
+            K=building.K,
+            damping_ratio=0.05,
+            ground_acceleration=ground_acc,
+            dt=dt,
+        )
+
+        assert result.displacement.shape == (3, n_steps)
+        assert result.velocity.shape == (3, n_steps)
+        assert len(result.time) == n_steps
+
+    def test_modal_superposition_zero_input(self):
+        """Test that zero input produces zero response."""
+        building = MDOFShearBuilding(
+            masses=np.array([1000.0, 1000.0]),
+            stiffnesses=np.array([50000.0, 50000.0]),
+            damping_ratio=0.05,
+        )
+
+        n_steps = 100
+        dt = 0.01
+        ground_acc = np.zeros(n_steps)
+
+        result = modal_superposition(
+            M=building.M,
+            K=building.K,
+            damping_ratio=0.05,
+            ground_acceleration=ground_acc,
+            dt=dt,
+        )
+
+        np.testing.assert_array_almost_equal(result.displacement, 0)
+
+    def test_modal_superposition_response_nonzero(self):
+        """Test modal superposition produces non-zero response to excitation."""
+        building = MDOFShearBuilding(
+            masses=np.array([1000.0, 1000.0, 1000.0]),
+            stiffnesses=np.array([50000.0, 50000.0, 50000.0]),
+            damping_ratio=0.05,
+        )
+
+        n_steps = 200
+        dt = 0.01
+        ground_acc = 0.1 * np.sin(2 * np.pi * np.arange(n_steps) * dt)
+
+        result = modal_superposition(
+            M=building.M,
+            K=building.K,
+            damping_ratio=0.05,
+            ground_acceleration=ground_acc,
+            dt=dt,
+        )
+
+        assert result.displacement.shape == (3, n_steps)
+        # Response should be finite and non-zero for non-zero input
+        assert np.all(np.isfinite(result.displacement))
+        assert np.max(np.abs(result.displacement)) > 0

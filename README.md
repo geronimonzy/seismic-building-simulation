@@ -1,5 +1,11 @@
 # Seismic Digital Twin
 
+[![Tests](https://github.com/your-org/seismic-building-simulation/actions/workflows/tests.yml/badge.svg)](https://github.com/your-org/seismic-building-simulation/actions/workflows/tests.yml)
+[![Code Quality](https://github.com/your-org/seismic-building-simulation/actions/workflows/quality.yml/badge.svg)](https://github.com/your-org/seismic-building-simulation/actions/workflows/quality.yml)
+[![codecov](https://codecov.io/gh/your-org/seismic-building-simulation/graph/badge.svg)](https://codecov.io/gh/your-org/seismic-building-simulation)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 A Python package for seismic building response simulation with sensor-based model calibration and uncertainty quantification.
 
 ## Overview
@@ -51,7 +57,7 @@ seismic-building-simulation/
 │       └── plots.py       # Result visualization
 ├── examples/
 │   └── run_workflow.py    # Complete workflow example
-├── tests/                 # Test suite (42 tests)
+├── tests/                 # Test suite (105 tests, 85% coverage)
 └── pyproject.toml
 ```
 
@@ -317,7 +323,7 @@ Output: `digital_twin_results.png`
 
 ## Requirements
 
-- Python >= 3.8
+- Python >= 3.9
 - numpy >= 1.21.0
 - scipy >= 1.7.0
 - matplotlib >= 3.4.0
