@@ -6,7 +6,7 @@ of motion of MDOF systems subjected to ground motion excitation.
 """
 
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -222,7 +222,7 @@ def modal_superposition(
 
         A11 = exp_term * (cos_term + xi * omega_m / omega_d * sin_term)
         A12 = exp_term * sin_term / omega_d
-        A21 = -omega_m**2 * exp_term * sin_term / omega_d
+        A21 = -(omega_m**2) * exp_term * sin_term / omega_d
         A22 = exp_term * (cos_term - xi * omega_m / omega_d * sin_term)
 
         # Load coefficients for piece-wise linear excitation
@@ -243,8 +243,13 @@ def modal_superposition(
     # Compute acceleration from equation of motion
     a = np.zeros((n_dof, n_steps))
     for i in range(n_steps):
-        a[:, i] = -omega[:n_modes]**2 @ (mode_shapes[:, :n_modes].T * q[:, i][:, np.newaxis]).sum(axis=0)
-        a[:, i] = linalg.solve(M, -K @ u[:, i] - M @ np.ones(n_dof) * ag_mps2[i]) + np.ones(n_dof) * ag_mps2[i]
+        a[:, i] = -(omega[:n_modes] ** 2) @ (
+            mode_shapes[:, :n_modes].T * q[:, i][:, np.newaxis]
+        ).sum(axis=0)
+        a[:, i] = (
+            linalg.solve(M, -K @ u[:, i] - M @ np.ones(n_dof) * ag_mps2[i])
+            + np.ones(n_dof) * ag_mps2[i]
+        )
 
     # Simpler: a = -2*xi*omega*v - omega^2*u - influence*ag
     a = np.zeros((n_dof, n_steps))

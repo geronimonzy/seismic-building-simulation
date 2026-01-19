@@ -5,7 +5,7 @@ This module provides functions for generating synthetic earthquake ground
 motions and reading seismogram files.
 """
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -19,7 +19,7 @@ def generate_synthetic_ground_motion(
     predominant_freq: float = 2.0,
     bandwidth: float = 1.5,
     seed: Optional[int] = None,
-) -> Tuple[NDArray[np.floating], NDArray[np.floating]]:
+) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
     """
     Generate synthetic earthquake ground motion using modulated filtered noise.
 
@@ -87,10 +87,7 @@ def generate_synthetic_ground_motion(
     # Avoid division by zero at t=0
     envelope = np.zeros_like(time)
     nonzero_mask = time > 0
-    envelope[nonzero_mask] = (
-        (time[nonzero_mask] ** b_env)
-        * np.exp(-c_env * time[nonzero_mask])
-    )
+    envelope[nonzero_mask] = (time[nonzero_mask] ** b_env) * np.exp(-c_env * time[nonzero_mask])
 
     # Normalize envelope to have maximum of 1
     if np.max(envelope) > 0:
@@ -113,7 +110,7 @@ def generate_harmonic_ground_motion(
     amplitude: float = 0.1,
     frequency: float = 1.0,
     n_cycles: Optional[int] = None,
-) -> Tuple[NDArray[np.floating], NDArray[np.floating]]:
+) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
     """
     Generate harmonic ground motion for testing purposes.
 
@@ -161,7 +158,7 @@ def generate_harmonic_ground_motion(
     return time, acceleration
 
 
-def read_bbp_seismogram(filepath: str) -> Tuple[NDArray[np.floating], NDArray[np.floating]]:
+def read_bbp_seismogram(filepath: str) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
     """
     Read a Broadband Platform (BBP) format seismogram file.
 
@@ -199,7 +196,7 @@ def read_bbp_seismogram(filepath: str) -> Tuple[NDArray[np.floating], NDArray[np
         raise NotImplementedError(
             f"BBP file parsing not fully implemented. Error: {e}\n"
             "Expected simple two-column format (time, acceleration)."
-        )
+        ) from e
 
 
 def baseline_correction(
@@ -277,7 +274,7 @@ def compute_response_spectrum(
     acceleration: NDArray[np.floating],
     periods: Optional[NDArray[np.floating]] = None,
     damping_ratio: float = 0.05,
-) -> Tuple[NDArray[np.floating], NDArray[np.floating]]:
+) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
     """
     Compute pseudo-acceleration response spectrum.
 
@@ -329,8 +326,8 @@ def compute_response_spectrum(
         B = exp_factor * sin_factor / omega_d
 
         for j in range(1, len(time)):
-            u[j] = A * u[j-1] + B * v[j-1] - dt * acc_mps2[j-1] / omega**2
-            v[j] = -omega**2 * B * u[j-1] + A * v[j-1]
+            u[j] = A * u[j - 1] + B * v[j - 1] - dt * acc_mps2[j - 1] / omega**2
+            v[j] = -(omega**2) * B * u[j - 1] + A * v[j - 1]
 
         # Spectral acceleration (pseudo-acceleration)
         Sa[i] = np.max(np.abs(u)) * omega**2 / 9.81

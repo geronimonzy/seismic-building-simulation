@@ -5,7 +5,7 @@ This module provides functions for plotting ground motion, structural
 response, calibration results, and uncertainty bounds.
 """
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -256,7 +256,7 @@ def plot_uncertainty_bounds(
 
 def plot_max_drifts(
     drift_ratios: NDArray[np.floating],
-    story_labels: Optional[List[str]] = None,
+    story_labels: Optional[list[str]] = None,
     ax: Optional[plt.Axes] = None,
     title: str = "Maximum Inter-Story Drift Ratios",
     threshold: Optional[float] = None,

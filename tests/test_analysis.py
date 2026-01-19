@@ -1,12 +1,10 @@
 """Tests for the analysis module."""
 
 import numpy as np
-import pytest
 
+from seismic_twin.analysis import compute_demand_metrics, newmark_beta
+from seismic_twin.analysis.metrics import compute_correlation, compute_nrmse
 from seismic_twin.building import MDOFShearBuilding
-from seismic_twin.ground_motion import generate_synthetic_ground_motion
-from seismic_twin.analysis import newmark_beta, compute_demand_metrics
-from seismic_twin.analysis.metrics import compute_nrmse, compute_correlation
 
 
 class TestNewmarkBeta:
@@ -108,7 +106,7 @@ class TestNewmarkBeta:
         m = 1000.0
         k = 40000.0
         omega_n = np.sqrt(k / m)
-        freq_n = omega_n / (2 * np.pi)
+        omega_n / (2 * np.pi)
 
         building = MDOFShearBuilding(
             masses=np.array([m]),
@@ -183,9 +181,7 @@ class TestNewmarkBeta:
         total_energy = kinetic + potential
 
         # Energy should be approximately constant (within 5%)
-        energy_variation = (np.max(total_energy) - np.min(total_energy)) / np.mean(
-            total_energy
-        )
+        energy_variation = (np.max(total_energy) - np.min(total_energy)) / np.mean(total_energy)
         assert energy_variation < 0.05
 
 
@@ -235,9 +231,7 @@ class TestDemandMetrics:
 
         # First story drift: u1 / h1 = 0.035 / 3.5 = 0.01
         # Second story drift: (u2 - u1) / h2 = 0.035 / 3.0 = 0.0117
-        np.testing.assert_almost_equal(
-            metrics.inter_story_drift_ratio[0], 0.035 / 3.5, decimal=4
-        )
+        np.testing.assert_almost_equal(metrics.inter_story_drift_ratio[0], 0.035 / 3.5, decimal=4)
         np.testing.assert_almost_equal(
             metrics.inter_story_drift_ratio[1], (0.070 - 0.035) / 3.0, decimal=4
         )

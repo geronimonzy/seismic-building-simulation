@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## GitHub Access
+
+Use token from `.gittoken` file to access the git repo via GitHub API.
+
 ## Build and Development Commands
 
 ```bash

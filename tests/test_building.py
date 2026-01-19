@@ -23,12 +23,8 @@ class TestMDOFShearBuilding:
         )
 
         assert building.n_dof == 1
-        np.testing.assert_almost_equal(
-            building.natural_frequencies[0], expected_omega, decimal=3
-        )
-        np.testing.assert_almost_equal(
-            building.natural_periods[0], expected_period, decimal=3
-        )
+        np.testing.assert_almost_equal(building.natural_frequencies[0], expected_omega, decimal=3)
+        np.testing.assert_almost_equal(building.natural_periods[0], expected_period, decimal=3)
 
     def test_two_dof_mode_shapes(self):
         """Test mode shapes of 2-DOF system with equal masses and stiffnesses."""
@@ -110,9 +106,7 @@ class TestMDOFShearBuilding:
 
         # Period should decrease by sqrt(2)
         expected_new_period = initial_period / np.sqrt(2)
-        np.testing.assert_almost_equal(
-            building.natural_periods[0], expected_new_period, decimal=4
-        )
+        np.testing.assert_almost_equal(building.natural_periods[0], expected_new_period, decimal=4)
 
     def test_update_damping(self):
         """Test damping ratio update functionality."""

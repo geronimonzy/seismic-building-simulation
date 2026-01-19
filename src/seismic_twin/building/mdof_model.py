@@ -6,7 +6,7 @@ where each floor is treated as a lumped mass connected by inter-story
 stiffness elements.
 """
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -124,9 +124,7 @@ class MDOFShearBuilding:
         # Natural periods in seconds
         self.natural_periods = np.zeros_like(self.natural_frequencies)
         nonzero_mask = self.natural_frequencies > 1e-10
-        self.natural_periods[nonzero_mask] = (
-            2.0 * np.pi / self.natural_frequencies[nonzero_mask]
-        )
+        self.natural_periods[nonzero_mask] = 2.0 * np.pi / self.natural_frequencies[nonzero_mask]
 
         # Mode shapes (mass-normalized by scipy.linalg.eigh)
         self.mode_shapes = eigenvectors

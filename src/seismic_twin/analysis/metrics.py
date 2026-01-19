@@ -6,7 +6,6 @@ parameters commonly used in seismic performance assessment.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -74,9 +73,7 @@ def compute_demand_metrics(
     inter_story_drift = np.zeros((n_dof, displacement.shape[1]))
     inter_story_drift[0, :] = displacement[0, :] / story_heights[0]
     for i in range(1, n_dof):
-        inter_story_drift[i, :] = (
-            (displacement[i, :] - displacement[i - 1, :]) / story_heights[i]
-        )
+        inter_story_drift[i, :] = (displacement[i, :] - displacement[i - 1, :]) / story_heights[i]
 
     inter_story_drift_ratio = np.max(np.abs(inter_story_drift), axis=1)
 
@@ -288,30 +285,18 @@ def compute_energy_balance(
     ag_mps2 = ground_acceleration * 9.81
 
     # Kinetic energy: 0.5 * v^T * M * v
-    kinetic = np.array([
-        0.5 * velocity[:, i] @ M @ velocity[:, i]
-        for i in range(n_steps)
-    ])
+    kinetic = np.array([0.5 * velocity[:, i] @ M @ velocity[:, i] for i in range(n_steps)])
 
     # Strain energy: 0.5 * u^T * K * u
-    strain = np.array([
-        0.5 * displacement[:, i] @ K @ displacement[:, i]
-        for i in range(n_steps)
-    ])
+    strain = np.array([0.5 * displacement[:, i] @ K @ displacement[:, i] for i in range(n_steps)])
 
     # Damping energy (cumulative): integral(v^T * C * v) dt
-    damping_power = np.array([
-        velocity[:, i] @ C @ velocity[:, i]
-        for i in range(n_steps)
-    ])
+    damping_power = np.array([velocity[:, i] @ C @ velocity[:, i] for i in range(n_steps)])
     damping = np.cumsum(damping_power) * dt
 
     # Input energy (cumulative): -integral(v^T * M * r * a_g) dt
     influence = np.ones(M.shape[0])
-    input_power = np.array([
-        -velocity[:, i] @ M @ influence * ag_mps2[i]
-        for i in range(n_steps)
-    ])
+    input_power = np.array([-velocity[:, i] @ M @ influence * ag_mps2[i] for i in range(n_steps)])
     input_energy = np.cumsum(input_power) * dt
 
     return {

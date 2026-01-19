@@ -6,14 +6,14 @@ using measured response data from sensors.
 """
 
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
 
+from seismic_twin.analysis import newmark_beta
+from seismic_twin.analysis.metrics import compute_correlation, compute_nrmse
 from seismic_twin.building import MDOFShearBuilding
-from seismic_twin.analysis import newmark_beta, compute_demand_metrics
-from seismic_twin.analysis.metrics import compute_nrmse, compute_correlation
 
 
 @dataclass
@@ -69,10 +69,10 @@ class StructuralCalibration:
         self.measured_displacement = np.atleast_2d(measured_displacement)
         self.sensor_floors = np.asarray(sensor_floors)
 
-        self.history: List[CalibrationResult] = []
+        self.history: list[CalibrationResult] = []
         self._current_stiffness_factor = 1.0
 
-    def compute_residuals(self) -> Tuple[float, float, NDArray[np.floating]]:
+    def compute_residuals(self) -> tuple[float, float, NDArray[np.floating]]:
         """
         Compute residuals between model prediction and measurements.
 
@@ -102,9 +102,7 @@ class StructuralCalibration:
         corr_values = []
 
         for i in range(len(self.sensor_floors)):
-            nrmse_values.append(
-                compute_nrmse(prediction[i, :], self.measured_displacement[i, :])
-            )
+            nrmse_values.append(compute_nrmse(prediction[i, :], self.measured_displacement[i, :]))
             corr_values.append(
                 compute_correlation(prediction[i, :], self.measured_displacement[i, :])
             )
@@ -184,8 +182,8 @@ class StructuralCalibration:
         self,
         max_iterations: int = 10,
         tolerance: float = 0.01,
-        stiffness_bounds: Tuple[float, float] = (0.5, 2.0),
-        damping_bounds: Tuple[float, float] = (0.01, 0.10),
+        stiffness_bounds: tuple[float, float] = (0.5, 2.0),
+        damping_bounds: tuple[float, float] = (0.01, 0.10),
     ) -> CalibrationResult:
         """
         Run automatic calibration using gradient-free optimization.
@@ -306,9 +304,9 @@ class StructuralCalibration:
                 # If prediction amplitude > measurement, increase damping
                 damping_adj = self.model.damping_ratio
                 if amp_ratio < 0.95:
-                    damping_adj *= (1.0 + damping_learning_rate)
+                    damping_adj *= 1.0 + damping_learning_rate
                 elif amp_ratio > 1.05:
-                    damping_adj *= (1.0 - damping_learning_rate)
+                    damping_adj *= 1.0 - damping_learning_rate
 
                 damping_adj = np.clip(damping_adj, 0.01, 0.15)
             else:
@@ -331,7 +329,7 @@ class StructuralCalibration:
         """Return a copy of the calibrated model."""
         return self.model.copy()
 
-    def get_convergence_history(self) -> Tuple[NDArray, NDArray]:
+    def get_convergence_history(self) -> tuple[NDArray, NDArray]:
         """
         Get convergence history arrays.
 

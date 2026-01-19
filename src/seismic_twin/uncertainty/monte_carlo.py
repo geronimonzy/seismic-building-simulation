@@ -6,14 +6,13 @@ uncertainty through structural response predictions.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
 
+from seismic_twin.analysis import compute_demand_metrics, newmark_beta
 from seismic_twin.building import MDOFShearBuilding
-from seismic_twin.analysis import newmark_beta, compute_demand_metrics
-from seismic_twin.analysis.integration import IntegrationResult
 
 
 @dataclass
@@ -36,7 +35,7 @@ class MonteCarloResult:
     velocity_bounds: UncertaintyBounds
     acceleration_bounds: UncertaintyBounds
     max_drift_distribution: NDArray[np.floating]
-    parameter_samples: Dict[str, NDArray[np.floating]]
+    parameter_samples: dict[str, NDArray[np.floating]]
     all_displacements: NDArray[np.floating]  # (n_samples, n_dof, n_steps)
 
 
@@ -82,7 +81,7 @@ class UncertaintyAnalysis:
         damping_cov: float = 0.20,
         mass_cov: float = 0.0,
         seed: Optional[int] = None,
-    ) -> Dict[str, NDArray[np.floating]]:
+    ) -> dict[str, NDArray[np.floating]]:
         """
         Generate parameter samples from distributions.
 
@@ -116,9 +115,7 @@ class UncertaintyAnalysis:
         if stiffness_cov > 0:
             sigma_k = np.sqrt(np.log(1 + stiffness_cov**2))
             mu_k = -0.5 * sigma_k**2
-            stiffness_factors = np.exp(
-                np.random.normal(mu_k, sigma_k, (n_samples, n_dof))
-            )
+            stiffness_factors = np.exp(np.random.normal(mu_k, sigma_k, (n_samples, n_dof)))
         else:
             stiffness_factors = np.ones((n_samples, n_dof))
 
@@ -264,9 +261,7 @@ class UncertaintyAnalysis:
             story_heights=self.base_model.story_heights,
         )
 
-    def _compute_bounds(
-        self, data: NDArray[np.floating]
-    ) -> UncertaintyBounds:
+    def _compute_bounds(self, data: NDArray[np.floating]) -> UncertaintyBounds:
         """Compute percentile bounds from ensemble data."""
         # data shape: (n_samples, n_dof, n_steps)
         return UncertaintyBounds(
@@ -278,8 +273,8 @@ class UncertaintyAnalysis:
         )
 
     def compute_uncertainty_bounds(
-        self, percentiles: Tuple[float, ...] = (5, 50, 95)
-    ) -> Dict[str, NDArray[np.floating]]:
+        self, percentiles: tuple[float, ...] = (5, 50, 95)
+    ) -> dict[str, NDArray[np.floating]]:
         """
         Compute custom percentile bounds from results.
 
@@ -297,11 +292,10 @@ class UncertaintyAnalysis:
             raise ValueError("Run run_mc_ensemble() first")
 
         return {
-            f"p{p}": np.percentile(self.results.all_displacements, p, axis=0)
-            for p in percentiles
+            f"p{p}": np.percentile(self.results.all_displacements, p, axis=0) for p in percentiles
         }
 
-    def get_drift_statistics(self) -> Dict[str, float]:
+    def get_drift_statistics(self) -> dict[str, float]:
         """
         Get statistics of maximum inter-story drift distribution.
 
@@ -351,17 +345,9 @@ class UncertaintyAnalysis:
         elif response_type == "displacement":
             values = np.max(np.abs(self.results.all_displacements), axis=(1, 2))
         elif response_type == "acceleration":
-            values = np.max(
-                np.abs(self.results.acceleration_bounds.mean), axis=(0, 1)
-            )
+            values = np.max(np.abs(self.results.acceleration_bounds.mean), axis=(0, 1))
             # Use individual samples
-            values = np.max(
-                np.abs(
-                    np.percentile(
-                        self.results.all_displacements, 50, axis=0
-                    )
-                )
-            )
+            values = np.max(np.abs(np.percentile(self.results.all_displacements, 50, axis=0)))
         else:
             raise ValueError(f"Unknown response_type: {response_type}")
 

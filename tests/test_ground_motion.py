@@ -5,9 +5,9 @@ import pytest
 
 from seismic_twin.ground_motion import generate_synthetic_ground_motion
 from seismic_twin.ground_motion.synthetic import (
-    generate_harmonic_ground_motion,
-    baseline_correction,
     apply_highpass_filter,
+    baseline_correction,
+    generate_harmonic_ground_motion,
 )
 
 
