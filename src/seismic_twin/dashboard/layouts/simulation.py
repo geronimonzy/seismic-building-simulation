@@ -68,6 +68,65 @@ def create_simulation_layout() -> html.Div:
                                 ],
                                 className="mb-3",
                             ),
+                            # Vertical Analysis Options (only visible when vertical GM exists)
+                            dbc.Card(
+                                [
+                                    dbc.CardHeader(
+                                        html.H5(
+                                            [
+                                                html.I(className="bi bi-arrows-expand me-2"),
+                                                "Vertical Analysis",
+                                            ],
+                                            className="mb-0",
+                                        )
+                                    ),
+                                    dbc.CardBody(
+                                        [
+                                            dbc.Alert(
+                                                [
+                                                    html.I(className="bi bi-info-circle me-2"),
+                                                    "Vertical ground motion detected. Configure axial stiffness for vertical analysis.",
+                                                ],
+                                                color="info",
+                                                className="mb-3",
+                                            ),
+                                            html.Div(
+                                                [
+                                                    html.Label(
+                                                        "Axial Stiffness Factor",
+                                                        className="form-label fw-bold",
+                                                    ),
+                                                    dcc.Slider(
+                                                        id="slider-vertical-stiffness",
+                                                        min=10,
+                                                        max=100,
+                                                        step=5,
+                                                        value=50,
+                                                        marks={
+                                                            10: "10x",
+                                                            25: "25x",
+                                                            50: "50x",
+                                                            75: "75x",
+                                                            100: "100x",
+                                                        },
+                                                        tooltip={
+                                                            "placement": "bottom",
+                                                            "always_visible": True,
+                                                        },
+                                                    ),
+                                                    dbc.FormText(
+                                                        "Ratio of vertical (axial) to horizontal (lateral) stiffness. "
+                                                        "Higher values mean stiffer vertical response."
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ],
+                                id="card-vertical-analysis",
+                                className="mb-3",
+                                style={"display": "none"},
+                            ),
                             # Monte Carlo options
                             dbc.Card(
                                 [

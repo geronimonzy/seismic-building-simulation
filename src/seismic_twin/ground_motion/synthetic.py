@@ -3,13 +3,20 @@ Synthetic Ground Motion Generation
 
 This module provides functions for generating synthetic earthquake ground
 motions and reading seismogram files.
+
+Supports single-component and multi-component (horizontal + vertical) generation.
 """
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.typing import NDArray
 from scipy import signal
+
+if TYPE_CHECKING:
+    from seismic_twin.ground_motion.record import GroundMotionRecord
 
 
 def generate_synthetic_ground_motion(
@@ -18,7 +25,7 @@ def generate_synthetic_ground_motion(
     target_pga: float = 0.3,
     predominant_freq: float = 2.0,
     bandwidth: float = 1.5,
-    seed: Optional[int] = None,
+    seed: int | None = None,
 ) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
     """
     Generate synthetic earthquake ground motion using modulated filtered noise.
@@ -109,7 +116,7 @@ def generate_harmonic_ground_motion(
     dt: float = 0.01,
     amplitude: float = 0.1,
     frequency: float = 1.0,
-    n_cycles: Optional[int] = None,
+    n_cycles: int | None = None,
 ) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
     """
     Generate harmonic ground motion for testing purposes.
@@ -272,7 +279,7 @@ def apply_highpass_filter(
 def compute_response_spectrum(
     time: NDArray[np.floating],
     acceleration: NDArray[np.floating],
-    periods: Optional[NDArray[np.floating]] = None,
+    periods: NDArray[np.floating] | None = None,
     damping_ratio: float = 0.05,
 ) -> tuple[NDArray[np.floating], NDArray[np.floating]]:
     """
@@ -333,3 +340,269 @@ def compute_response_spectrum(
         Sa[i] = np.max(np.abs(u)) * omega**2 / 9.81
 
     return periods, Sa
+
+
+def generate_vertical_component(
+    horizontal: NDArray[np.floating],
+    dt: float,
+    v_h_ratio: float = 0.67,
+    freq_shift: float = 1.3,
+    seed: int | None = None,
+) -> NDArray[np.floating]:
+    """
+    Generate vertical component from horizontal motion.
+
+    Vertical ground motion typically has:
+    - Lower amplitude (V/H ratio typically 0.5-0.7)
+    - Higher frequency content
+    - Different phase characteristics
+
+    Parameters
+    ----------
+    horizontal : ndarray
+        Horizontal acceleration in g.
+    dt : float
+        Time step in seconds.
+    v_h_ratio : float
+        Vertical to horizontal PGA ratio (default 0.67 = 2/3).
+    freq_shift : float
+        Frequency content shift factor (>1 for higher frequencies).
+    seed : int, optional
+        Random seed for phase variation.
+
+    Returns
+    -------
+    ndarray
+        Vertical acceleration in g.
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    n_points = len(horizontal)
+    nyquist = 0.5 / dt
+
+    # FFT of horizontal component
+    h_fft = np.fft.rfft(horizontal)
+    frequencies = np.fft.rfftfreq(n_points, dt)
+
+    # Shift frequency content (vertical has higher frequencies)
+    # This is done by interpolating the spectrum
+    if freq_shift != 1.0:
+        # Create shifted frequency axis
+        shifted_freqs = frequencies / freq_shift
+        shifted_freqs = np.clip(shifted_freqs, 0, nyquist)
+
+        # Interpolate magnitude and phase
+        magnitude = np.abs(h_fft)
+        phase = np.angle(h_fft)
+
+        # Simple frequency shift by resampling
+        from scipy.interpolate import interp1d
+
+        if len(frequencies) > 1:
+            mag_interp = interp1d(
+                frequencies, magnitude, kind="linear", bounds_error=False, fill_value=0
+            )
+            phase_interp = interp1d(
+                frequencies, phase, kind="linear", bounds_error=False, fill_value=0
+            )
+
+            new_magnitude = mag_interp(shifted_freqs)
+            new_phase = phase_interp(shifted_freqs)
+        else:
+            new_magnitude = magnitude
+            new_phase = phase
+
+        # Add some phase randomization for realism
+        phase_noise = np.random.uniform(-np.pi / 4, np.pi / 4, len(new_phase))
+        new_phase += phase_noise
+
+        v_fft = new_magnitude * np.exp(1j * new_phase)
+    else:
+        # Just scale and add phase variation
+        phase_noise = np.random.uniform(-np.pi / 4, np.pi / 4, len(h_fft))
+        v_fft = h_fft * np.exp(1j * phase_noise)
+
+    # Inverse FFT
+    vertical = np.fft.irfft(v_fft, n=n_points)
+
+    # Scale to target V/H ratio
+    h_pga = np.max(np.abs(horizontal))
+    v_pga = np.max(np.abs(vertical))
+    if v_pga > 0 and h_pga > 0:
+        target_v_pga = h_pga * v_h_ratio
+        vertical = vertical * (target_v_pga / v_pga)
+
+    return vertical
+
+
+def generate_2component_ground_motion(
+    duration: float = 30.0,
+    dt: float = 0.01,
+    target_pga: float = 0.3,
+    predominant_freq: float = 2.0,
+    bandwidth: float = 1.5,
+    v_h_ratio: float = 0.67,
+    seed: int | None = None,
+) -> GroundMotionRecord:
+    """
+    Generate synthetic 2-component (horizontal + vertical) ground motion.
+
+    Parameters
+    ----------
+    duration : float
+        Total duration in seconds.
+    dt : float
+        Time step in seconds.
+    target_pga : float
+        Target horizontal PGA in g.
+    predominant_freq : float
+        Predominant frequency of horizontal motion in Hz.
+    bandwidth : float
+        Bandwidth parameter for frequency content.
+    v_h_ratio : float
+        Vertical to horizontal PGA ratio (default 0.67).
+    seed : int, optional
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    GroundMotionRecord
+        Ground motion record with horizontal and vertical components.
+    """
+    from seismic_twin.ground_motion.record import GroundMotionRecord
+
+    # Generate horizontal component
+    time, horizontal = generate_synthetic_ground_motion(
+        duration=duration,
+        dt=dt,
+        target_pga=target_pga,
+        predominant_freq=predominant_freq,
+        bandwidth=bandwidth,
+        seed=seed,
+    )
+
+    # Generate vertical component
+    v_seed = seed + 1000 if seed is not None else None
+    vertical = generate_vertical_component(
+        horizontal=horizontal,
+        dt=dt,
+        v_h_ratio=v_h_ratio,
+        freq_shift=1.3,  # Vertical typically has higher frequency content
+        seed=v_seed,
+    )
+
+    return GroundMotionRecord(
+        time=time,
+        horizontal=horizontal,
+        vertical=vertical,
+        metadata={
+            "source": "synthetic",
+            "target_pga": target_pga,
+            "predominant_freq": predominant_freq,
+            "bandwidth": bandwidth,
+            "v_h_ratio": v_h_ratio,
+        },
+    )
+
+
+def generate_site_modified_motion(
+    duration: float = 30.0,
+    dt: float = 0.01,
+    target_pga: float = 0.3,
+    predominant_freq: float = 2.0,
+    bandwidth: float = 1.5,
+    site_class: str = "D",
+    include_vertical: bool = True,
+    seed: int | None = None,
+) -> GroundMotionRecord:
+    """
+    Generate synthetic ground motion with site response effects.
+
+    Generates rock motion and applies site amplification.
+
+    Parameters
+    ----------
+    duration : float
+        Total duration in seconds.
+    dt : float
+        Time step in seconds.
+    target_pga : float
+        Target PGA at site surface in g.
+    predominant_freq : float
+        Predominant frequency in Hz.
+    bandwidth : float
+        Bandwidth parameter.
+    site_class : str
+        NEHRP site class ('A', 'B', 'C', 'D', or 'E').
+    include_vertical : bool
+        Whether to generate vertical component.
+    seed : int, optional
+        Random seed.
+
+    Returns
+    -------
+    GroundMotionRecord
+        Ground motion record with site effects applied.
+    """
+    from seismic_twin.ground_motion.record import GroundMotionRecord
+    from seismic_twin.ground_motion.site_response import (
+        SiteProperties,
+        apply_site_response,
+    )
+
+    # Get site properties
+    site = SiteProperties.from_site_class(site_class)
+
+    # Estimate rock PGA (before amplification)
+    # Simple approximation: rock_pga = surface_pga / amplification
+    rock_pga = target_pga / site.peak_amplification
+
+    # Generate rock motion
+    time, rock_horizontal = generate_synthetic_ground_motion(
+        duration=duration,
+        dt=dt,
+        target_pga=rock_pga,
+        predominant_freq=predominant_freq,
+        bandwidth=bandwidth,
+        seed=seed,
+    )
+
+    # Apply site response
+    surface_horizontal = apply_site_response(time, rock_horizontal, site)
+
+    # Scale to exact target PGA (site response is approximate)
+    current_pga = np.max(np.abs(surface_horizontal))
+    if current_pga > 0:
+        surface_horizontal = surface_horizontal * (target_pga / current_pga)
+
+    # Generate vertical component if requested
+    vertical = None
+    if include_vertical:
+        v_seed = seed + 1000 if seed is not None else None
+        # Vertical V/H ratio varies with site class
+        # Softer sites tend to have higher V/H ratios
+        v_h_ratios = {"A": 0.5, "B": 0.55, "C": 0.6, "D": 0.67, "E": 0.75}
+        v_h_ratio = v_h_ratios.get(site_class.upper(), 0.67)
+
+        vertical = generate_vertical_component(
+            horizontal=surface_horizontal,
+            dt=dt,
+            v_h_ratio=v_h_ratio,
+            freq_shift=1.2,
+            seed=v_seed,
+        )
+
+    return GroundMotionRecord(
+        time=time,
+        horizontal=surface_horizontal,
+        vertical=vertical,
+        metadata={
+            "source": "synthetic_with_site_response",
+            "site_class": site_class,
+            "target_pga": target_pga,
+            "rock_pga": rock_pga,
+            "predominant_freq": predominant_freq,
+            "vs30": site.vs30,
+        },
+    )

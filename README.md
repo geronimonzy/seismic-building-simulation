@@ -10,6 +10,7 @@ A Python package for seismic building response simulation with an interactive we
 ## Features
 
 - **Interactive Web Dashboard** - Configure buildings, run simulations, and visualize results in your browser
+- **Two-Axis Simulation** - Combined horizontal (lateral) and vertical (axial) ground motion analysis with configurable V/H ratio
 - **Real Earthquake Data** - Fetch actual seismic records from SCEDC (Southern California Earthquake Data Center)
 - **MDOF Structural Models** - Multi-degree-of-freedom shear building models with Rayleigh damping
 - **Time History Analysis** - Newmark-beta integration for dynamic response
@@ -100,18 +101,23 @@ The dashboard provides a complete workflow through four pages:
 
 ### 2. Ground Motion
 - **Synthetic**: Generate artificial earthquakes with target PGA, duration, frequency content
+- **Vertical Component**: Optional vertical ground motion with configurable V/H ratio (default 0.67)
 - **Real Earthquakes**: Fetch actual records from SCEDC S3 (e.g., Ridgecrest 2019)
 - Built-in scenarios (Design Level, MCE, Near-Fault, etc.)
 
 ### 3. Simulation
-- Run time history analysis with progress tracking
+- Run time history analysis with real-time progress tracking
+- **Two-Axis Analysis**: Separate horizontal (lateral) and vertical (axial) response computation
+- **Vertical Stiffness Factor**: Configurable axial stiffness multiplier (10x-100x of lateral stiffness)
 - Optional Monte Carlo uncertainty analysis
 - Configurable number of samples and parameter uncertainty
 
 ### 4. Results
 - Interactive time history plots (displacement, velocity, acceleration)
+- **Axis Selector**: View horizontal, vertical, or combined results in Time History and Drift Profile tabs
 - Inter-story drift profiles with performance thresholds
 - Uncertainty bands (5th-95th percentile)
+- Energy Balance visualization showing kinetic, strain, damping, and input energy time histories (combined from both axes)
 - Summary metrics with performance level indicators (IO/LS/CP)
 
 ### Preset Configurations

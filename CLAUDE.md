@@ -56,7 +56,7 @@ Ground Motion → Building Model → Time Integration → Calibration → Uncert
 
 - **building/** - `MDOFShearBuilding` class for N-story shear building models with lumped masses and lateral stiffnesses. Assembles mass (M), stiffness (K), and damping (C) matrices using Rayleigh damping.
 
-- **ground_motion/** - Synthetic earthquake generation with bandpass filtering and Saragoni-Hart envelope. Also provides baseline correction and response spectrum computation.
+- **ground_motion/** - Synthetic earthquake generation with bandpass filtering and Saragoni-Hart envelope. Also provides baseline correction and response spectrum computation. Supports vertical ground motion component generation with configurable V/H ratio.
 
 - **analysis/** - Two integration methods:
   - `newmark_beta()` - Implicit time integration (unconditionally stable), returns `IntegrationResult` dataclass
@@ -151,3 +151,49 @@ Ground motion preset JSON:
 ```
 
 Example scenarios are provided in `examples/presets/` demonstrating typical analysis use cases.
+
+### Two-Axis Simulation
+
+The dashboard supports combined horizontal (X-axis, lateral) and vertical (Z-axis, axial) ground motion analysis:
+
+**Ground Motion Configuration:**
+- "Generate Vertical Component" checkbox enables vertical ground motion generation
+- V/H ratio slider (default 0.67) controls the vertical-to-horizontal PGA ratio
+- Vertical PGA is automatically calculated as: `pga_vertical = target_pga * v_h_ratio`
+
+**Simulation Configuration:**
+- "Vertical Analysis" card appears when vertical ground motion is available
+- Vertical stiffness factor slider (10x-100x) sets axial stiffness relative to lateral stiffness
+- Separate Newmark-beta integration runs for horizontal and vertical axes
+
+**Results Visualization:**
+- Axis selector dropdown (Horizontal/Vertical/Both) in Time History and Drift Profile tabs
+- Energy balance combines contributions from both horizontal and vertical response
+- Summary metrics show worst-case values across both axes
+
+### Dashboard State Schema
+
+Key state fields for two-axis simulation:
+
+**GroundMotionState:**
+- `acceleration_vertical`: Optional vertical acceleration time history (list of floats)
+- `v_h_ratio`: Vertical-to-horizontal PGA ratio (default 0.67)
+- `has_vertical`: Boolean flag indicating vertical component availability
+- `pga_vertical`: Peak ground acceleration of vertical component (g)
+
+**SimulationConfig:**
+- `vertical_stiffness_factor`: Multiplier for axial stiffness (default 50.0, range 10-100)
+
+**SimulationResults:**
+- `displacement_vertical`: Vertical displacement response (n_dof x n_timesteps)
+- `velocity_vertical`: Vertical velocity response
+- `acceleration_vertical`: Vertical acceleration response
+- `inter_story_drift_ratio_vertical`: Vertical inter-story drift ratios
+- `has_vertical_results`: Boolean flag indicating vertical results availability
+
+### Background Callbacks
+
+The simulation page uses Dash background callbacks for long-running computations:
+- Progress bar updates in real-time during simulation
+- "Run Simulation" button is disabled while simulation is in progress
+- Prevents duplicate simulation requests

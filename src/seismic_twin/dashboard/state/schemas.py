@@ -41,7 +41,7 @@ class GroundMotionState(BaseModel):
 
     time: list[float] = Field(default_factory=list, description="Time vector in seconds")
     acceleration: list[float] = Field(
-        default_factory=list, description="Acceleration time history in g"
+        default_factory=list, description="Horizontal acceleration time history in g"
     )
     dt: float = Field(default=0.01, description="Time step in seconds")
     pga: float = Field(default=0.0, description="Peak ground acceleration in g")
@@ -56,6 +56,14 @@ class GroundMotionState(BaseModel):
     bandwidth: float = Field(default=1.5, description="Bandwidth parameter")
     seed: Optional[int] = Field(default=None, description="Random seed")
 
+    # Vertical component fields
+    acceleration_vertical: list[float] = Field(
+        default_factory=list, description="Vertical acceleration time history in g"
+    )
+    v_h_ratio: float = Field(default=0.67, description="Vertical to horizontal PGA ratio")
+    has_vertical: bool = Field(default=False, description="Whether vertical component exists")
+    pga_vertical: float = Field(default=0.0, description="Peak vertical ground acceleration in g")
+
 
 class SimulationConfig(BaseModel):
     """Simulation configuration."""
@@ -67,6 +75,14 @@ class SimulationConfig(BaseModel):
     mass_cov: float = Field(default=0.0, ge=0.0, le=0.2, description="Mass COV")
     mc_seed: Optional[int] = Field(default=42, description="Random seed for MC")
 
+    # Vertical analysis configuration
+    vertical_stiffness_factor: float = Field(
+        default=50.0,
+        ge=10.0,
+        le=100.0,
+        description="Axial/lateral stiffness ratio for vertical analysis",
+    )
+
 
 class SimulationResults(BaseModel):
     """Simulation results for storage."""
@@ -74,21 +90,43 @@ class SimulationResults(BaseModel):
     # Time vector
     time: list[float] = Field(default_factory=list)
 
-    # Displacement results (n_dof x n_steps, flattened)
+    # Horizontal displacement results (n_dof x n_steps)
     displacement: list[list[float]] = Field(default_factory=list)
     velocity: list[list[float]] = Field(default_factory=list)
     acceleration: list[list[float]] = Field(default_factory=list)
 
-    # Demand metrics
+    # Horizontal demand metrics
     max_displacement: list[float] = Field(default_factory=list)
     max_velocity: list[float] = Field(default_factory=list)
     max_acceleration: list[float] = Field(default_factory=list)
     inter_story_drift_ratio: list[float] = Field(default_factory=list)
     peak_ground_acceleration: float = Field(default=0.0)
 
+    # Vertical displacement results (n_dof x n_steps)
+    displacement_vertical: list[list[float]] = Field(default_factory=list)
+    velocity_vertical: list[list[float]] = Field(default_factory=list)
+    acceleration_vertical: list[list[float]] = Field(default_factory=list)
+
+    # Vertical demand metrics
+    max_displacement_vertical: list[float] = Field(default_factory=list)
+    max_velocity_vertical: list[float] = Field(default_factory=list)
+    max_acceleration_vertical: list[float] = Field(default_factory=list)
+    inter_story_drift_ratio_vertical: list[float] = Field(
+        default_factory=list, description="Axial strain per story"
+    )
+    peak_ground_acceleration_vertical: float = Field(default=0.0)
+
+    # Multi-axis metadata
+    has_vertical_results: bool = Field(default=False)
+    vertical_stiffness_factor: float = Field(default=50.0)
+
     # Building properties for reference
     natural_periods: list[float] = Field(default_factory=list)
     natural_frequencies: list[float] = Field(default_factory=list)
+
+    # Vertical building properties
+    natural_periods_vertical: list[float] = Field(default_factory=list)
+    natural_frequencies_vertical: list[float] = Field(default_factory=list)
 
     # Monte Carlo results (if enabled)
     mc_enabled: bool = Field(default=False)
@@ -96,6 +134,12 @@ class SimulationResults(BaseModel):
     displacement_p50: list[list[float]] = Field(default_factory=list)
     displacement_p95: list[list[float]] = Field(default_factory=list)
     max_drift_distribution: list[float] = Field(default_factory=list)
+
+    # Energy balance results (combined from both axes if vertical exists)
+    energy_kinetic: list[float] = Field(default_factory=list)
+    energy_strain: list[float] = Field(default_factory=list)
+    energy_damping: list[float] = Field(default_factory=list)
+    energy_input: list[float] = Field(default_factory=list)
 
     # Status
     completed: bool = Field(default=False)

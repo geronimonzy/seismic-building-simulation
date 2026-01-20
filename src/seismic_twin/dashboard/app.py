@@ -19,6 +19,7 @@ from seismic_twin.dashboard.layouts import (
     create_simulation_layout,
 )
 from seismic_twin.dashboard.state import create_stores
+from seismic_twin.dashboard.tasks import get_background_callback_manager
 
 
 def create_app(debug: bool = False) -> Dash:
@@ -35,6 +36,9 @@ def create_app(debug: bool = False) -> Dash:
     Dash
         Configured Dash application instance.
     """
+    # Get background callback manager for long-running tasks
+    background_callback_manager = get_background_callback_manager()
+
     # Create Dash app with Bootstrap theme
     app = Dash(
         __name__,
@@ -45,6 +49,7 @@ def create_app(debug: bool = False) -> Dash:
         suppress_callback_exceptions=True,
         title="Seismic Twin Dashboard",
         update_title="Loading...",
+        background_callback_manager=background_callback_manager,
     )
 
     # Define the app layout

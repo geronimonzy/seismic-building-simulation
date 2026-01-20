@@ -192,6 +192,52 @@ def create_ground_motion_layout() -> html.Div:
                                                         ],
                                                         className="mb-3",
                                                     ),
+                                                    html.Hr(),
+                                                    # Vertical component section
+                                                    html.Div(
+                                                        [
+                                                            dbc.Checklist(
+                                                                id="check-enable-vertical",
+                                                                options=[
+                                                                    {
+                                                                        "label": "Generate Vertical Component",
+                                                                        "value": "enabled",
+                                                                    }
+                                                                ],
+                                                                value=[],
+                                                                className="fw-bold mb-2",
+                                                            ),
+                                                            html.Div(
+                                                                id="vertical-options",
+                                                                children=[
+                                                                    html.Label(
+                                                                        "V/H Ratio",
+                                                                        className="form-label",
+                                                                    ),
+                                                                    dbc.InputGroup(
+                                                                        [
+                                                                            dbc.Input(
+                                                                                id="input-vh-ratio",
+                                                                                type="number",
+                                                                                min=0.3,
+                                                                                max=1.0,
+                                                                                step=0.01,
+                                                                                value=0.67,
+                                                                            ),
+                                                                            dbc.InputGroupText(
+                                                                                "typical: 0.5-0.75"
+                                                                            ),
+                                                                        ],
+                                                                    ),
+                                                                    dbc.FormText(
+                                                                        "Vertical to horizontal PGA ratio"
+                                                                    ),
+                                                                ],
+                                                                style={"display": "none"},
+                                                            ),
+                                                        ],
+                                                        className="mb-3",
+                                                    ),
                                                     # Generate button
                                                     dbc.Button(
                                                         [
@@ -387,6 +433,46 @@ def create_ground_motion_layout() -> html.Div:
                                                         md=4,
                                                     ),
                                                 ]
+                                            ),
+                                            # Vertical PGA row (only shown if vertical exists)
+                                            html.Div(
+                                                id="vertical-pga-row",
+                                                children=[
+                                                    html.Hr(className="my-2"),
+                                                    dbc.Row(
+                                                        [
+                                                            dbc.Col(
+                                                                [
+                                                                    html.H6(
+                                                                        "Vertical PGA",
+                                                                        className="text-muted",
+                                                                    ),
+                                                                    html.P(
+                                                                        id="display-gm-pga-vertical",
+                                                                        className="font-monospace",
+                                                                        children="-",
+                                                                    ),
+                                                                ],
+                                                                md=4,
+                                                            ),
+                                                            dbc.Col(
+                                                                [
+                                                                    html.H6(
+                                                                        "V/H Ratio",
+                                                                        className="text-muted",
+                                                                    ),
+                                                                    html.P(
+                                                                        id="display-gm-vh-ratio",
+                                                                        className="font-monospace",
+                                                                        children="-",
+                                                                    ),
+                                                                ],
+                                                                md=4,
+                                                            ),
+                                                        ]
+                                                    ),
+                                                ],
+                                                style={"display": "none"},
                                             ),
                                         ]
                                     ),
