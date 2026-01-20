@@ -22,9 +22,7 @@ class BuildingParams(BaseModel):
         default_factory=lambda: [1e8, 1e8, 1e8],
         description="Inter-story stiffnesses in N/m",
     )
-    damping_ratio: float = Field(
-        default=0.05, ge=0.01, le=0.15, description="Modal damping ratio"
-    )
+    damping_ratio: float = Field(default=0.05, ge=0.01, le=0.15, description="Modal damping ratio")
     story_heights: list[float] = Field(
         default_factory=lambda: [3.5, 3.5, 3.5],
         description="Story heights in meters",

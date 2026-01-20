@@ -40,7 +40,9 @@ def register_results_callbacks(app: Dash) -> None:
         # Extract summary values
         pga = results.get("peak_ground_acceleration", 0)
         max_drift = max(results.get("inter_story_drift_ratio", [0]))
-        max_disp = results.get("max_displacement", [0])[-1] if results.get("max_displacement") else 0
+        max_disp = (
+            results.get("max_displacement", [0])[-1] if results.get("max_displacement") else 0
+        )
         t1 = results.get("natural_periods", [0])[0] if results.get("natural_periods") else 0
 
         # Create floor options
@@ -98,7 +100,11 @@ def register_results_callbacks(app: Dash) -> None:
         response_config = {
             "displacement": {"response": displacement, "label": "Displacement", "units": "m"},
             "velocity": {"response": velocity or np.array([]), "label": "Velocity", "units": "m/s"},
-            "acceleration": {"response": acceleration or np.array([]), "label": "Acceleration", "units": "g"},
+            "acceleration": {
+                "response": acceleration or np.array([]),
+                "label": "Acceleration",
+                "units": "g",
+            },
         }
 
         config = response_config.get(response_type, response_config["displacement"])
@@ -148,9 +154,7 @@ def register_results_callbacks(app: Dash) -> None:
 
         # Check if MC results are available
         has_mc_results = (
-            results
-            and results.get("completed", False)
-            and results.get("mc_enabled", False)
+            results and results.get("completed", False) and results.get("mc_enabled", False)
         )
 
         if not has_mc_results:

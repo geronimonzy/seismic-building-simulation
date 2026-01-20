@@ -333,9 +333,7 @@ def register_ground_motion_callbacks(app: Dash) -> None:
                 return (*no_change, alert)
 
             name = data.get("name", "Imported")
-            alert = create_import_alert(
-                f"Successfully imported: {name}", "success", duration=4000
-            )
+            alert = create_import_alert(f"Successfully imported: {name}", "success", duration=4000)
 
             return (
                 data["target_pga"],

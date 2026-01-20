@@ -60,7 +60,10 @@ def create_results_summary_card(
             [
                 html.Strong("Max Roof Displacement"),
                 html.Br(),
-                html.Span(f"{max_displacement:.4f} m ({max_displacement * 1000:.2f} mm)", className="text-muted"),
+                html.Span(
+                    f"{max_displacement:.4f} m ({max_displacement * 1000:.2f} mm)",
+                    className="text-muted",
+                ),
             ],
         ),
         dbc.ListGroupItem(

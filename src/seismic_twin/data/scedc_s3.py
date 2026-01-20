@@ -53,14 +53,14 @@ class SCEDCS3Fetcher:
 
     # Known strong motion stations near Ridgecrest with good data
     RIDGECREST_STATIONS = [
-        ("CI", "CLC", 17.5),   # China Lake - closest
+        ("CI", "CLC", 17.5),  # China Lake - closest
         ("CI", "JRC2", 22.1),  # Junction Ranch
-        ("CI", "SRT", 28.3),   # Searles
+        ("CI", "SRT", 28.3),  # Searles
         ("CI", "TOW2", 48.2),  # Towne Pass
-        ("CI", "MPM", 55.1),   # Mopi
-        ("CI", "WMF", 62.4),   # Warm Springs
-        ("CI", "LRL", 71.2),   # Little Lake
-        ("CI", "ISA", 80.5),   # Isabella
+        ("CI", "MPM", 55.1),  # Mopi
+        ("CI", "WMF", 62.4),  # Warm Springs
+        ("CI", "LRL", 71.2),  # Little Lake
+        ("CI", "ISA", 80.5),  # Isabella
     ]
 
     def __init__(
@@ -78,12 +78,11 @@ class SCEDCS3Fetcher:
         if self._fdsn_client is None:
             try:
                 from obspy.clients.fdsn import Client
+
                 # Use IRIS for station metadata (more reliable than SCEDC web service)
                 self._fdsn_client = Client("IRIS", timeout=self.timeout)
             except ImportError as e:
-                raise ImportError(
-                    "ObsPy is required. Install with: pip install obspy"
-                ) from e
+                raise ImportError("ObsPy is required. Install with: pip install obspy") from e
         return self._fdsn_client
 
     def _date_to_doy(self, dt: datetime) -> tuple[int, int]:
@@ -199,9 +198,7 @@ class SCEDCS3Fetcher:
             depth_km=origin.depth / 1000.0 if origin.depth else 0.0,
             magnitude=magnitude.mag,
             magnitude_type=magnitude.magnitude_type or "Unknown",
-            region=str(
-                event.event_descriptions[0].text if event.event_descriptions else "Unknown"
-            ),
+            region=str(event.event_descriptions[0].text if event.event_descriptions else "Unknown"),
             source_catalog="USGS",
         )
 
@@ -251,9 +248,9 @@ class SCEDCS3Fetcher:
                     sta_lon = inventory[0][0].longitude
 
                     from obspy.geodetics import gps2dist_azimuth
+
                     dist_m, _, _ = gps2dist_azimuth(
-                        event_info.latitude, event_info.longitude,
-                        sta_lat, sta_lon
+                        event_info.latitude, event_info.longitude, sta_lat, sta_lon
                     )
                     epicentral_distance_km = dist_m / 1000.0
                 except Exception:
@@ -292,6 +289,7 @@ class SCEDCS3Fetcher:
                 # Apply processing
                 if apply_baseline_correction:
                     from seismic_twin.ground_motion.synthetic import baseline_correction
+
                     acceleration_mps2 = baseline_correction(acceleration_mps2, dt)
                     processing_history.append("baseline_correction")
 
@@ -299,6 +297,7 @@ class SCEDCS3Fetcher:
                     from seismic_twin.ground_motion.synthetic import (
                         apply_highpass_filter as hp_filter,
                     )
+
                     acceleration_mps2 = hp_filter(acceleration_mps2, dt, highpass_freq)
                     processing_history.append(f"highpass_{highpass_freq}Hz")
 
@@ -377,8 +376,7 @@ class SCEDCS3Fetcher:
         for network in inventory:
             for station in network:
                 dist_m, _, _ = gps2dist_azimuth(
-                    origin.latitude, origin.longitude,
-                    station.latitude, station.longitude
+                    origin.latitude, origin.longitude, station.latitude, station.longitude
                 )
                 stations.append((network.code, station.code, dist_m / 1000.0))
 

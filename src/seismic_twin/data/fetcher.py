@@ -53,8 +53,7 @@ class SeismicDataFetcher:
     ):
         if data_center.upper() not in self.VALID_DATA_CENTERS:
             raise ValueError(
-                f"Invalid data center: {data_center}. "
-                f"Valid options: {self.VALID_DATA_CENTERS}"
+                f"Invalid data center: {data_center}. Valid options: {self.VALID_DATA_CENTERS}"
             )
 
         self.data_center = data_center.upper()
@@ -216,7 +215,6 @@ class SeismicDataFetcher:
         if cached is not None:
             return cached
 
-
         try:
             catalog = self.event_client.get_events(eventid=event_id)
         except Exception as e:
@@ -237,9 +235,7 @@ class SeismicDataFetcher:
             depth_km=origin.depth / 1000.0 if origin.depth else 0.0,
             magnitude=magnitude.mag,
             magnitude_type=magnitude.magnitude_type or "Unknown",
-            region=str(
-                event.event_descriptions[0].text if event.event_descriptions else "Unknown"
-            ),
+            region=str(event.event_descriptions[0].text if event.event_descriptions else "Unknown"),
             source_catalog=self.data_center,
         )
 
@@ -571,9 +567,7 @@ class SeismicDataFetcher:
 
         return records
 
-    def get_finite_fault_model(
-        self, event_id: str, source: str = "usgs"
-    ) -> FiniteFaultModel:
+    def get_finite_fault_model(self, event_id: str, source: str = "usgs") -> FiniteFaultModel:
         """
         Get finite fault model for an earthquake.
 

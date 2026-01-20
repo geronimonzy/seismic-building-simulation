@@ -198,8 +198,7 @@ def _get_preset_options(presets: dict[str, Any]) -> list[dict[str, str]]:
     """Build dropdown options from a presets dictionary."""
     options = [{"label": "Custom", "value": "custom"}]
     options.extend(
-        {"label": preset["name"], "value": preset_id}
-        for preset_id, preset in presets.items()
+        {"label": preset["name"], "value": preset_id} for preset_id, preset in presets.items()
     )
     return options
 
@@ -251,9 +250,7 @@ def decode_uploaded_json(contents: str) -> dict[str, Any]:
         raise ValueError(f"Invalid JSON file: {e}") from e
 
 
-def validate_preset_fields(
-    data: dict[str, Any], required_fields: list[str]
-) -> list[str]:
+def validate_preset_fields(data: dict[str, Any], required_fields: list[str]) -> list[str]:
     """
     Validate that all required fields are present in preset data.
 

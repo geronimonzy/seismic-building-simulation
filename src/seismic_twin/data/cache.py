@@ -267,9 +267,7 @@ class CacheManager:
         except OSError as e:
             raise CacheError(f"Failed to clear cache: {e}") from e
 
-    def make_waveform_key(
-        self, event_id: str, network: str, station: str, channel: str
-    ) -> str:
+    def make_waveform_key(self, event_id: str, network: str, station: str, channel: str) -> str:
         """
         Generate cache key for waveform data.
 

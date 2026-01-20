@@ -222,7 +222,9 @@ def create_ground_motion_layout() -> html.Div:
                                                                 className="bi bi-info-circle me-2"
                                                             ),
                                                             "Requires ",
-                                                            html.Code("pip install seismic-twin[data]"),
+                                                            html.Code(
+                                                                "pip install seismic-twin[data]"
+                                                            ),
                                                         ],
                                                         color="info",
                                                         className="mb-3",
@@ -270,11 +272,26 @@ def create_ground_motion_layout() -> html.Div:
                                                             dbc.Select(
                                                                 id="select-channel",
                                                                 options=[
-                                                                    {"label": "HNE (East)", "value": "HNE"},
-                                                                    {"label": "HNN (North)", "value": "HNN"},
-                                                                    {"label": "HNZ (Vertical)", "value": "HNZ"},
-                                                                    {"label": "BHE", "value": "BHE"},
-                                                                    {"label": "BHN", "value": "BHN"},
+                                                                    {
+                                                                        "label": "HNE (East)",
+                                                                        "value": "HNE",
+                                                                    },
+                                                                    {
+                                                                        "label": "HNN (North)",
+                                                                        "value": "HNN",
+                                                                    },
+                                                                    {
+                                                                        "label": "HNZ (Vertical)",
+                                                                        "value": "HNZ",
+                                                                    },
+                                                                    {
+                                                                        "label": "BHE",
+                                                                        "value": "BHE",
+                                                                    },
+                                                                    {
+                                                                        "label": "BHN",
+                                                                        "value": "BHN",
+                                                                    },
                                                                 ],
                                                                 value="HNE",
                                                             ),
@@ -334,7 +351,9 @@ def create_ground_motion_layout() -> html.Div:
                                                 [
                                                     dbc.Col(
                                                         [
-                                                            html.H6("Source", className="text-muted"),
+                                                            html.H6(
+                                                                "Source", className="text-muted"
+                                                            ),
                                                             html.P(
                                                                 id="display-gm-source",
                                                                 className="font-monospace",
@@ -356,7 +375,9 @@ def create_ground_motion_layout() -> html.Div:
                                                     ),
                                                     dbc.Col(
                                                         [
-                                                            html.H6("Duration", className="text-muted"),
+                                                            html.H6(
+                                                                "Duration", className="text-muted"
+                                                            ),
                                                             html.P(
                                                                 id="display-gm-duration",
                                                                 className="font-monospace",

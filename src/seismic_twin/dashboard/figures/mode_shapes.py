@@ -90,7 +90,9 @@ def create_mode_shapes_figure(
         )
 
         # Add zero reference line
-        fig.add_vline(x=0, line_dash="dash", line_color="gray", opacity=0.5, row=1, col=mode_idx + 1)
+        fig.add_vline(
+            x=0, line_dash="dash", line_color="gray", opacity=0.5, row=1, col=mode_idx + 1
+        )
 
         # Add building outline (simplified)
         fig.add_trace(

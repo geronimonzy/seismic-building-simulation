@@ -375,9 +375,7 @@ def create_simulation_layout() -> html.Div:
                                                     ),
                                                     dbc.Button(
                                                         [
-                                                            html.I(
-                                                                className="bi bi-graph-up me-2"
-                                                            ),
+                                                            html.I(className="bi bi-graph-up me-2"),
                                                             "View Detailed Results",
                                                         ],
                                                         href="/results",

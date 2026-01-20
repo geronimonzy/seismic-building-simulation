@@ -29,10 +29,7 @@ def register_simulation_callbacks(app: Dash) -> None:
             and building_params.get("n_stories", 0) > 0
             and len(building_params.get("masses", [])) > 0
         )
-        gm_ok = (
-            ground_motion is not None
-            and len(ground_motion.get("acceleration", [])) > 0
-        )
+        gm_ok = ground_motion is not None and len(ground_motion.get("acceleration", [])) > 0
 
         building_icon, building_color = _get_check_icon_and_color(building_ok)
         gm_icon, gm_color = _get_check_icon_and_color(gm_ok)
