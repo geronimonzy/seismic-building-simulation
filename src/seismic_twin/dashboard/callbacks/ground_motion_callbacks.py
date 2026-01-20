@@ -3,7 +3,6 @@
 import json
 from datetime import datetime
 
-import dash_bootstrap_components as dbc
 import numpy as np
 from dash import Dash, Input, Output, State, html, no_update
 
@@ -141,6 +140,7 @@ def register_ground_motion_callbacks(app: Dash) -> None:
     ):
         """Fetch real earthquake record."""
         import dash_bootstrap_components as dbc
+
         from seismic_twin.dashboard.figures import create_ground_motion_figure
         from seismic_twin.dashboard.state.schemas import GroundMotionState
 

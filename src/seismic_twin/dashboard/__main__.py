@@ -40,7 +40,7 @@ def main():
 
     app = create_app(debug=args.debug)
 
-    print(f"\nStarting Seismic Twin Dashboard...")
+    print("\nStarting Seismic Twin Dashboard...")
     print(f"Open http://{args.host}:{args.port} in your browser\n")
 
     app.run(

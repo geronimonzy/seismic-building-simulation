@@ -7,7 +7,7 @@ support, Bootstrap theming, and background callback management.
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import Dash, dcc, html, page_container
+from dash import Dash, dcc, html
 
 from seismic_twin.dashboard.callbacks import register_all_callbacks
 from seismic_twin.dashboard.layouts import (

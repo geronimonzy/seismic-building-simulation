@@ -6,7 +6,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -31,7 +31,7 @@ class CacheManager:
         Can be overridden by SEISMIC_CACHE_DIR environment variable.
     """
 
-    def __init__(self, cache_dir: Optional[Path | str] = None):
+    def __init__(self, cache_dir: Optional[Union[Path, str]] = None):
         if cache_dir is None:
             cache_dir = os.environ.get("SEISMIC_CACHE_DIR", ".seismic_cache")
         self.cache_dir = Path(cache_dir)
