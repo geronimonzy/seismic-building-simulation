@@ -1,0 +1,21 @@
+{
+  "name": "Historic Building - Near-Fault Pulse",
+  "description": "Vulnerable unreinforced masonry historic building subjected to near-fault ground motion. Critical scenario for heritage building assessment and retrofit planning.",
+  "building": {
+    "name": "4-Story Historic Masonry",
+    "description": "Early 1900s unreinforced brick masonry building",
+    "n_stories": 4,
+    "mass_per_floor": 220000,
+    "stiffness_per_story": 45000000,
+    "damping_ratio": 0.08,
+    "story_height": 3.2
+  },
+  "ground_motion": {
+    "name": "Near-Fault Pulse Motion",
+    "description": "Forward directivity pulse from nearby fault rupture",
+    "target_pga": 0.55,
+    "duration": 12,
+    "predominant_freq": 1.2,
+    "bandwidth": 2.0
+  }
+}

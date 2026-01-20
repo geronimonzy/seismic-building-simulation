@@ -1,0 +1,21 @@
+{
+  "name": "Residential Building - Moderate Earthquake",
+  "description": "Typical 3-story residential wood frame building subjected to a moderate earthquake on stiff soil. Common scenario for California residential areas.",
+  "building": {
+    "name": "3-Story Wood Frame Residential",
+    "description": "Light wood frame residential building typical of suburban California",
+    "n_stories": 3,
+    "mass_per_floor": 25000,
+    "stiffness_per_story": 12000000,
+    "damping_ratio": 0.05,
+    "story_height": 2.7
+  },
+  "ground_motion": {
+    "name": "Moderate Event - Stiff Soil",
+    "description": "M5.5-6.0 earthquake at 20km distance on firm ground",
+    "target_pga": 0.15,
+    "duration": 18,
+    "predominant_freq": 3.5,
+    "bandwidth": 2.0
+  }
+}

@@ -79,3 +79,62 @@ Ground Motion → Building Model → Time Integration → Calibration → Uncert
 - Displacement: meters
 - Acceleration: m/s² (or g units where noted)
 - Story heights: meters
+
+## Dashboard
+
+The interactive dashboard (`src/seismic_twin/dashboard/`) provides a web interface for building analysis. Run with:
+
+```bash
+# Install dashboard dependencies
+pip install -e ".[dashboard]"
+
+# Launch dashboard
+python -m seismic_twin.dashboard
+```
+
+### Preset Configurations
+
+The dashboard supports preset configurations for both building models and ground motion scenarios.
+
+**Built-in Presets** (`presets.py`):
+- **Building presets**: Low-rise RC, Mid-rise RC, High-rise Steel, Historic Masonry, Light Wood Frame, Industrial Steel
+- **Ground motion presets**: Moderate-Stiff Soil, Strong-Soft Soil, Very Strong-Near Fault, Design Level (DBE), Maximum Considered (MCE), Low Seismicity
+
+**Import/Export JSON Format**:
+
+Building preset JSON:
+```json
+{
+  "name": "Custom Building",
+  "description": "Optional description",
+  "n_stories": 3,
+  "mass_per_floor": 100000,
+  "stiffness_per_story": 100000000,
+  "damping_ratio": 0.05,
+  "story_height": 3.5
+}
+```
+
+Ground motion preset JSON:
+```json
+{
+  "name": "Custom Scenario",
+  "description": "Optional description",
+  "target_pga": 0.3,
+  "duration": 30,
+  "predominant_freq": 2.0,
+  "bandwidth": 1.5
+}
+```
+
+**Combined Scenario Format** (see `examples/presets/`):
+```json
+{
+  "name": "Scenario Name",
+  "description": "Scenario description",
+  "building": { ... building params ... },
+  "ground_motion": { ... ground motion params ... }
+}
+```
+
+Example scenarios are provided in `examples/presets/` demonstrating typical analysis use cases.

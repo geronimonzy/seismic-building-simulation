@@ -1,0 +1,21 @@
+{
+  "name": "Office Building - Design Basis Earthquake",
+  "description": "Mid-rise reinforced concrete office building subjected to code design-level earthquake. Typical evaluation scenario for building code compliance.",
+  "building": {
+    "name": "8-Story RC Office Building",
+    "description": "Modern reinforced concrete moment frame office building",
+    "n_stories": 8,
+    "mass_per_floor": 180000,
+    "stiffness_per_story": 120000000,
+    "damping_ratio": 0.05,
+    "story_height": 3.5
+  },
+  "ground_motion": {
+    "name": "Design Basis Earthquake (DBE)",
+    "description": "10% probability of exceedance in 50 years - code design level",
+    "target_pga": 0.3,
+    "duration": 30,
+    "predominant_freq": 2.0,
+    "bandwidth": 1.5
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Hospital - Maximum Considered Earthquake",
+  "description": "Critical facility (hospital) evaluation under maximum considered earthquake. Essential facilities must remain operational after major seismic events.",
+  "building": {
+    "name": "5-Story Hospital Building",
+    "description": "Steel braced frame hospital with enhanced seismic design",
+    "n_stories": 5,
+    "mass_per_floor": 250000,
+    "stiffness_per_story": 200000000,
+    "damping_ratio": 0.03,
+    "story_height": 4.0
+  },
+  "ground_motion": {
+    "name": "Maximum Considered Earthquake (MCE)",
+    "description": "2% probability of exceedance in 50 years - collapse prevention level",
+    "target_pga": 0.5,
+    "duration": 45,
+    "predominant_freq": 1.8,
+    "bandwidth": 1.5
+  }
+}

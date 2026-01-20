@@ -1,0 +1,21 @@
+{
+  "name": "High-Rise Tower - Soft Soil Amplification",
+  "description": "Tall steel building on soft soil site experiencing site amplification effects. Important scenario for understanding soil-structure interaction and long-period response.",
+  "building": {
+    "name": "25-Story Steel Tower",
+    "description": "Modern steel moment frame high-rise with long fundamental period",
+    "n_stories": 25,
+    "mass_per_floor": 95000,
+    "stiffness_per_story": 140000000,
+    "damping_ratio": 0.02,
+    "story_height": 3.8
+  },
+  "ground_motion": {
+    "name": "Soft Soil Site Amplification",
+    "description": "Strong motion amplified by deep soft soil deposits (Site Class E)",
+    "target_pga": 0.35,
+    "duration": 55,
+    "predominant_freq": 0.8,
+    "bandwidth": 0.6
+  }
+}
