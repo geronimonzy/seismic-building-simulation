@@ -6,6 +6,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Use token from `.gittoken` file to access the git repo via GitHub API.
 
+**IMPORTANT**: The token in `.gittoken` is READ-ONLY. Never use it with `gh auth login` as this will overwrite the user's authentication and break their ability to push.
+
+```bash
+# WRONG - Do NOT do this (overwrites user's auth):
+gh auth login --with-token < .gittoken
+
+# CORRECT - Use token directly with gh api:
+gh api repos/OWNER/REPO/actions/runs --header "Authorization: token $(cat .gittoken)"
+
+# CORRECT - Or set GH_TOKEN for a single command:
+GH_TOKEN=$(cat .gittoken) gh run list
+```
+
 ## Build and Development Commands
 
 ```bash
