@@ -4,7 +4,6 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-
 # Color palette for floor traces
 FLOOR_COLORS = [
     "#1f77b4",  # blue

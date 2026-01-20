@@ -2,12 +2,11 @@
 SeismicDataFetcher - Fetch real earthquake data from USGS/FDSN networks.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Optional, Union
 
 import numpy as np
-from numpy.typing import NDArray
 
 from seismic_twin.data.cache import CacheManager
 from seismic_twin.data.exceptions import DataNotFoundError, NetworkError
@@ -217,7 +216,6 @@ class SeismicDataFetcher:
         if cached is not None:
             return cached
 
-        from obspy import UTCDateTime
 
         try:
             catalog = self.event_client.get_events(eventid=event_id)
@@ -605,11 +603,9 @@ class SeismicDataFetcher:
 
         # Try USGS finite fault API
         if source.lower() == "usgs":
-            url = f"https://earthquake.usgs.gov/earthquakes/eventpage/{event_id}/finite-fault"
-
             try:
                 response = requests.get(
-                    f"https://earthquake.usgs.gov/fdsnws/event/1/query",
+                    "https://earthquake.usgs.gov/fdsnws/event/1/query",
                     params={
                         "eventid": event_id,
                         "format": "geojson",

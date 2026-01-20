@@ -9,11 +9,11 @@ Path structure: continuous_waveforms/YYYY/YYYY_DOY/[Net][Sta][Cha][Loc]_[Year][D
 """
 
 import io
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
 
 import numpy as np
 
@@ -178,7 +178,7 @@ class SCEDCS3Fetcher:
         GroundMotionRecord
             Ground motion record with acceleration in g units.
         """
-        from obspy import read, UTCDateTime
+        from obspy import UTCDateTime, read
         from obspy.clients.fdsn import Client
 
         # Get event info from USGS
@@ -274,11 +274,10 @@ class SCEDCS3Fetcher:
                     )
                     trace.attach_response(inv)
                     trace.remove_response(output="ACC")
-                    response_removed = True
                 except Exception as resp_err:
                     # If response removal fails, we can't use this data reliably
                     print(f"    Warning: Could not remove instrument response: {resp_err}")
-                    print(f"    Trying next station...")
+                    print("    Trying next station...")
                     last_error = f"Could not remove response for {net}.{sta}: {resp_err}"
                     continue
 
@@ -347,8 +346,8 @@ class SCEDCS3Fetcher:
 
         Returns list of (network, station, distance_km) tuples.
         """
-        from obspy.clients.fdsn import Client
         from obspy import UTCDateTime
+        from obspy.clients.fdsn import Client
         from obspy.geodetics import gps2dist_azimuth
 
         # Get event info

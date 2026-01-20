@@ -3,7 +3,6 @@
 import numpy as np
 import plotly.graph_objects as go
 
-
 # ASCE 7 drift limits for reference
 DRIFT_LIMITS = {
     "io": 0.007,  # Immediate Occupancy

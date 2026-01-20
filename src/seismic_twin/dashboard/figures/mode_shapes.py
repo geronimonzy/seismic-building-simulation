@@ -167,7 +167,7 @@ def create_building_schematic(
     total_height = cumulative_height[-1]
 
     # Draw floors
-    for i, h in enumerate(cumulative_height):
+    for _i, h in enumerate(cumulative_height):
         fig.add_trace(
             go.Scatter(
                 x=[-building_width / 2, building_width / 2],
