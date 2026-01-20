@@ -2,7 +2,7 @@
 
 import base64
 import json
-from typing import Any, TypedDict
+from typing import Any, Optional, TypedDict
 
 import dash_bootstrap_components as dbc
 
@@ -272,7 +272,7 @@ def validate_preset_fields(data: dict[str, Any], required_fields: list[str]) -> 
 def create_import_alert(
     message: str,
     color: str,
-    duration: int | None = None,
+    duration: Optional[int] = None,
 ) -> dbc.Alert:
     """
     Create a dismissable alert for import/export operations.
@@ -283,7 +283,7 @@ def create_import_alert(
         Alert message text.
     color : str
         Bootstrap color (e.g., "success", "danger", "warning").
-    duration : int | None
+    duration : Optional[int]
         Auto-dismiss duration in milliseconds, or None for no auto-dismiss.
 
     Returns

@@ -11,7 +11,7 @@ Path structure: continuous_waveforms/YYYY/YYYY_DOY/[Net][Sta][Cha][Loc]_[Year][D
 import io
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
@@ -65,7 +65,7 @@ class SCEDCS3Fetcher:
 
     def __init__(
         self,
-        cache_dir: str | Path = ".seismic_cache",
+        cache_dir: Union[str, Path] = ".seismic_cache",
         timeout: float = 60.0,
     ):
         self.cache = CacheManager(cache_dir)

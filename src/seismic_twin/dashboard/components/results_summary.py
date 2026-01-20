@@ -1,5 +1,7 @@
 """Results summary components."""
 
+from typing import Optional
+
 import dash_bootstrap_components as dbc
 from dash import html
 
@@ -9,7 +11,7 @@ def create_results_summary_card(
     max_displacement: float,
     max_acceleration: float,
     pga: float,
-    t1: float | None = None,
+    t1: Optional[float] = None,
 ) -> dbc.Card:
     """
     Create a summary card of simulation results.
