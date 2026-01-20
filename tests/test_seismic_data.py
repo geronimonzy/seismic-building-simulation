@@ -142,7 +142,7 @@ class TestCacheManager:
         """Test that cache directories are created on init."""
         with tempfile.TemporaryDirectory() as tmpdir:
             cache_dir = Path(tmpdir) / "test_cache"
-            cache = CacheManager(cache_dir)
+            CacheManager(cache_dir)  # Creates directories on init
 
             assert (cache_dir / "events").exists()
             assert (cache_dir / "waveforms").exists()
