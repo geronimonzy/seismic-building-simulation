@@ -1,0 +1,70 @@
+# Dockerfile for Seismic Twin Dashboard
+# Multi-stage build for optimized image size
+
+FROM python:3.11-slim AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Set working directory
+WORKDIR /build
+
+# Copy project files
+COPY pyproject.toml .
+COPY src/ ./src/
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir ".[dashboard]"
+
+# Production stage
+FROM python:3.11-slim AS production
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Set working directory
+WORKDIR /app
+
+# Copy application code
+COPY src/ ./src/
+COPY pyproject.toml .
+
+# Install the package in editable mode
+RUN pip install --no-cache-dir -e .
+
+# Create cache directory
+RUN mkdir -p /app/.seismic_cache/dash && chown -R appuser:appuser /app/.seismic_cache
+
+# Switch to non-root user
+USER appuser
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1
+ENV DASH_CACHE_DIR=/app/.seismic_cache/dash
+
+# Expose port
+EXPOSE 8050
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8050/')" || exit 1
+
+# Default command - run with gunicorn for production
+CMD ["gunicorn", "seismic_twin.dashboard:server", \
+     "--bind", "0.0.0.0:8050", \
+     "--workers", "2", \
+     "--threads", "4", \
+     "--timeout", "120", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-"]

@@ -7,6 +7,7 @@ A modular Python package for seismic building simulation supporting:
 - Time history analysis
 - Sensor-based calibration
 - Uncertainty quantification
+- Real earthquake data fetching (SeismoHub)
 """
 
 from seismic_twin.analysis import compute_demand_metrics, newmark_beta
@@ -24,4 +25,20 @@ __all__ = [
     "compute_demand_metrics",
     "StructuralCalibration",
     "UncertaintyAnalysis",
+    # Data fetching (lazy imports)
+    "SeismicDataFetcher",
+    "fetch_ground_motion_record",
 ]
+
+
+# Lazy imports for SeismoHub to avoid ObsPy import overhead
+def __getattr__(name: str):
+    if name == "SeismicDataFetcher":
+        from seismic_twin.data import SeismicDataFetcher
+
+        return SeismicDataFetcher
+    if name == "fetch_ground_motion_record":
+        from seismic_twin.data import fetch_ground_motion_record
+
+        return fetch_ground_motion_record
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

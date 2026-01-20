@@ -1,0 +1,16 @@
+services:
+  seismic:
+    build: .
+    volumes:
+      # Mount source code for live editing
+      - ./src:/app/src:rw
+      - ./tests:/app/tests:rw
+      - ./examples:/app/examples:rw
+      # Persistent cache for downloaded seismic data
+      - ./.seismic_cache:/app/.seismic_cache:rw
+      # Output directory for reports and results
+      - ./output:/app/output:rw
+    working_dir: /app
+    # Default to interactive shell
+    stdin_open: true
+    tty: true

@@ -1,0 +1,57 @@
+# Docker Compose configuration for Seismic Twin Dashboard
+#
+# Usage:
+#   Development:  docker compose -f docker-compose.dashboard.yml up --build
+#   Production:   docker compose -f docker-compose.dashboard.yml up -d
+#   Stop:         docker compose -f docker-compose.dashboard.yml down
+
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+      target: production
+    container_name: seismic-twin-dashboard
+    ports:
+      - "8050:8050"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DASH_CACHE_DIR=/app/.seismic_cache/dash
+    volumes:
+      # Mount cache directory for persistence
+      - dashboard-cache:/app/.seismic_cache
+      # For development: mount source code for hot reloading
+      # - ./src:/app/src:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8050/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Redis for production Celery backend
+  # Uncomment for distributed task queue support
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: seismic-twin-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 3
+
+volumes:
+  dashboard-cache:
+    driver: local
+  # redis-data:
+  #   driver: local
+
+networks:
+  default:
+    name: seismic-twin-network
