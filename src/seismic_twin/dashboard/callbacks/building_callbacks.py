@@ -32,6 +32,8 @@ def register_building_callbacks(app: Dash) -> None:
         State("check-uniform-stiffness", "value"),
         State("input-story-height", "value"),
         State("slider-damping-ratio", "value"),
+        State("input-building-latitude", "value"),
+        State("input-building-longitude", "value"),
         State("store-building-params", "data"),
         prevent_initial_call=False,
     )
@@ -44,6 +46,8 @@ def register_building_callbacks(app: Dash) -> None:
         uniform_stiffness_checked,
         story_height,
         damping_ratio,
+        latitude,
+        longitude,
         current_params,
     ):
         """Update building model and compute modal properties."""
@@ -85,6 +89,8 @@ def register_building_callbacks(app: Dash) -> None:
                 story_heights=story_heights,
                 uniform_mass=use_uniform_mass,
                 uniform_stiffness=use_uniform_stiffness,
+                latitude=latitude,
+                longitude=longitude,
             )
 
             # Format natural periods display
@@ -111,7 +117,10 @@ def register_building_callbacks(app: Dash) -> None:
             )
 
             # Sidebar info
-            sidebar_info = f"Building: {n_stories} stories, T1={model.natural_periods[0]:.2f}s"
+            location_str = ""
+            if latitude is not None and longitude is not None:
+                location_str = f" @ ({latitude:.2f}, {longitude:.2f})"
+            sidebar_info = f"Building: {n_stories} stories, T1={model.natural_periods[0]:.2f}s{location_str}"
 
             return (
                 params.model_dump(),

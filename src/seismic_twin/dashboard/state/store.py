@@ -9,6 +9,7 @@ from dash import dcc
 from seismic_twin.dashboard.state.schemas import (
     BuildingParams,
     GroundMotionState,
+    PredictionState,
     SimulationConfig,
     SimulationResults,
 )
@@ -55,5 +56,17 @@ def create_stores() -> list:
                 "simulation_running": False,
                 "last_error": None,
             },
+        ),
+        # Prediction state store
+        dcc.Store(
+            id="store-prediction-state",
+            storage_type="session",
+            data=PredictionState().model_dump(),
+        ),
+        # Prediction task ID store
+        dcc.Store(
+            id="store-prediction-task-id",
+            storage_type="memory",
+            data=None,
         ),
     ]

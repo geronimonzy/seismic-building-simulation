@@ -254,6 +254,72 @@ def create_building_layout() -> html.Div:
                                 ],
                                 className="mb-3",
                             ),
+                            # Building Location Card (Optional)
+                            dbc.Card(
+                                [
+                                    dbc.CardHeader(
+                                        html.H5(
+                                            [
+                                                html.I(className="bi bi-geo-alt me-2"),
+                                                "Building Location (Optional)",
+                                            ],
+                                            className="mb-0",
+                                        )
+                                    ),
+                                    dbc.CardBody(
+                                        [
+                                            dbc.Alert(
+                                                [
+                                                    html.I(className="bi bi-info-circle me-2"),
+                                                    "Set your building's location to enable ",
+                                                    "ground motion prediction at this site.",
+                                                ],
+                                                color="info",
+                                                className="py-2",
+                                            ),
+                                            dbc.Row(
+                                                [
+                                                    dbc.Col(
+                                                        [
+                                                            html.Label(
+                                                                "Latitude",
+                                                                className="form-label",
+                                                            ),
+                                                            dbc.Input(
+                                                                id="input-building-latitude",
+                                                                type="number",
+                                                                min=-90,
+                                                                max=90,
+                                                                step=0.001,
+                                                                placeholder="e.g., 35.77",
+                                                            ),
+                                                        ],
+                                                        md=6,
+                                                    ),
+                                                    dbc.Col(
+                                                        [
+                                                            html.Label(
+                                                                "Longitude",
+                                                                className="form-label",
+                                                            ),
+                                                            dbc.Input(
+                                                                id="input-building-longitude",
+                                                                type="number",
+                                                                min=-180,
+                                                                max=180,
+                                                                step=0.001,
+                                                                placeholder="e.g., -117.60",
+                                                            ),
+                                                        ],
+                                                        md=6,
+                                                    ),
+                                                ],
+                                            ),
+                                        ]
+                                    ),
+                                ],
+                                className="mb-3",
+                            ),
                         ],
                         md=5,
                         lg=4,

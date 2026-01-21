@@ -90,6 +90,12 @@ def create_sidebar() -> html.Div:
             "label": "Results",
             "id": "nav-results",
         },
+        {
+            "href": "/wave-prediction",
+            "icon": "bi-broadcast-pin",
+            "label": "Wave Prediction",
+            "id": "nav-wave-prediction",
+        },
     ]
 
     nav_links = []

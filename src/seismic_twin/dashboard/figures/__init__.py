@@ -9,6 +9,13 @@ from seismic_twin.dashboard.figures.ground_motion_plot import create_ground_moti
 from seismic_twin.dashboard.figures.mode_shapes import create_mode_shapes_figure
 from seismic_twin.dashboard.figures.time_history import create_time_history_figure
 from seismic_twin.dashboard.figures.uncertainty_band import create_uncertainty_figure
+from seismic_twin.dashboard.figures.validation_plots import (
+    create_empty_spectrum_figure,
+    create_empty_waveform_figure,
+    create_pga_scatter_figure,
+    create_spectrum_comparison_figure,
+    create_waveform_comparison_figure,
+)
 
 __all__ = [
     "create_ground_motion_figure",
@@ -18,4 +25,9 @@ __all__ = [
     "create_mode_shapes_figure",
     "create_energy_balance_figure",
     "create_building_animation_figure",
+    "create_waveform_comparison_figure",
+    "create_spectrum_comparison_figure",
+    "create_empty_waveform_figure",
+    "create_empty_spectrum_figure",
+    "create_pga_scatter_figure",
 ]

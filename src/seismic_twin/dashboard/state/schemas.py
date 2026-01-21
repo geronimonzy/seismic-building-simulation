@@ -31,6 +31,12 @@ class BuildingParams(BaseModel):
     uniform_stiffness: bool = Field(default=True, description="Use uniform stiffness per story")
     uniform_height: bool = Field(default=True, description="Use uniform story height")
 
+    # Building location (optional, for wave prediction)
+    latitude: Optional[float] = Field(default=None, ge=-90, le=90, description="Building latitude")
+    longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Building longitude"
+    )
+
     def to_arrays(self) -> tuple[list[float], list[float], list[float]]:
         """Return masses, stiffnesses, story_heights as lists."""
         return self.masses, self.stiffnesses, self.story_heights
@@ -146,6 +152,71 @@ class SimulationResults(BaseModel):
     error: Optional[str] = Field(default=None)
 
 
+class StationInfo(BaseModel):
+    """Information about a seismic station."""
+
+    station_id: str = Field(description="Station code")
+    network: str = Field(default="CI", description="Network code")
+    latitude: float = Field(description="Station latitude")
+    longitude: float = Field(description="Station longitude")
+    distance_km: float = Field(default=0.0, description="Distance from epicenter in km")
+    pga: float = Field(default=0.0, description="Peak ground acceleration in g")
+
+
+class PredictionState(BaseModel):
+    """State for wave propagation prediction."""
+
+    # Event information
+    event_id: Optional[str] = Field(default=None, description="Event ID (e.g., ci38457511)")
+    event_magnitude: float = Field(default=0.0, description="Event magnitude")
+    event_lat: float = Field(default=0.0, description="Epicenter latitude")
+    event_lon: float = Field(default=0.0, description="Epicenter longitude")
+    event_depth_km: float = Field(default=0.0, description="Event depth in km")
+    event_region: str = Field(default="", description="Region name")
+
+    # Available stations
+    available_stations: list[StationInfo] = Field(
+        default_factory=list, description="List of available stations"
+    )
+
+    # Selection
+    target_station_id: Optional[str] = Field(default=None, description="Target station to predict")
+    selected_source_stations: list[str] = Field(
+        default_factory=list, description="Selected source stations"
+    )
+
+    # Waveform data
+    time: list[float] = Field(default_factory=list, description="Time vector")
+    dt: float = Field(default=0.01, description="Time step")
+    actual_waveform: list[float] = Field(default_factory=list, description="Actual waveform")
+    predicted_waveform: list[float] = Field(default_factory=list, description="Predicted waveform")
+
+    # Peak metrics
+    actual_pga: float = Field(default=0.0, description="Actual PGA")
+    predicted_pga: float = Field(default=0.0, description="Predicted PGA")
+    pga_ratio: float = Field(default=0.0, description="Predicted/Actual PGA ratio")
+    pga_error_percent: float = Field(default=0.0, description="PGA error percentage")
+
+    # Spectrum comparison
+    spectrum_periods: list[float] = Field(default_factory=list, description="Spectral periods")
+    spectrum_actual: list[float] = Field(default_factory=list, description="Actual Sa")
+    spectrum_predicted: list[float] = Field(default_factory=list, description="Predicted Sa")
+
+    # Time series metrics
+    nrmse: float = Field(default=0.0, description="Normalized RMSE")
+    correlation: float = Field(default=0.0, description="Correlation coefficient")
+    arias_ratio: float = Field(default=0.0, description="Arias intensity ratio")
+
+    # Overall quality
+    overall_score: float = Field(default=0.0, description="Overall quality score (0-1)")
+    quality_grade: str = Field(default="", description="Quality grade (A-F)")
+
+    # Status
+    loaded: bool = Field(default=False, description="Whether event data is loaded")
+    prediction_complete: bool = Field(default=False, description="Whether prediction is complete")
+    error: Optional[str] = Field(default=None, description="Error message if any")
+
+
 class DashboardState(BaseModel):
     """Complete dashboard state."""
 
@@ -153,4 +224,5 @@ class DashboardState(BaseModel):
     ground_motion: GroundMotionState = Field(default_factory=GroundMotionState)
     simulation_config: SimulationConfig = Field(default_factory=SimulationConfig)
     results: Optional[SimulationResults] = Field(default=None)
+    prediction: PredictionState = Field(default_factory=PredictionState)
     current_page: str = Field(default="building")

@@ -8,6 +8,9 @@ from seismic_twin.dashboard.callbacks.ground_motion_callbacks import (
 )
 from seismic_twin.dashboard.callbacks.results_callbacks import register_results_callbacks
 from seismic_twin.dashboard.callbacks.simulation_callbacks import register_simulation_callbacks
+from seismic_twin.dashboard.callbacks.wave_prediction_callbacks import (
+    register_wave_prediction_callbacks,
+)
 
 
 def register_all_callbacks(app: Dash) -> None:
@@ -16,6 +19,7 @@ def register_all_callbacks(app: Dash) -> None:
     register_ground_motion_callbacks(app)
     register_simulation_callbacks(app)
     register_results_callbacks(app)
+    register_wave_prediction_callbacks(app)
 
 
 __all__ = [
@@ -24,4 +28,5 @@ __all__ = [
     "register_ground_motion_callbacks",
     "register_simulation_callbacks",
     "register_results_callbacks",
+    "register_wave_prediction_callbacks",
 ]

@@ -69,12 +69,21 @@ Ground Motion → Building Model → Time Integration → Calibration → Uncert
 
 - **visualization/** - Plotting utilities including `create_results_figure()` for comprehensive 6-panel summary plots.
 
+- **prediction/** - Wave propagation prediction using Ground Motion Prediction Equations (GMPEs):
+  - `gmpe/base.py` - Abstract GMPE base class with `GMPEInput` and `GMPEOutput` dataclasses
+  - `gmpe/boore_atkinson_2008.py` - Boore-Atkinson 2008 GMPE implementation for PGA and spectral acceleration
+  - `distance.py` - Distance calculation functions (`compute_epicentral_distance`, `compute_hypocentral_distance`, `compute_rjb_distance`)
+  - `waveform_prediction.py` - `WaveformPredictor` class for GMPE-based waveform scaling between locations
+  - `validation.py` - `PredictionValidator` class with quality metrics and A-F grading
+
 ### Key Data Structures
 
 - `IntegrationResult`: Contains displacement, velocity, acceleration, absolute_acceleration arrays (shape: n_dof × n_timesteps) and time vector
 - `DemandMetrics`: Contains max_displacement, max_velocity, max_acceleration, inter_story_drift_ratio arrays
 - `CalibrationResult`: Contains stiffness_factor, damping_ratio, nrmse for each iteration
 - `MonteCarloResult`: Contains displacement_bounds with percentile statistics
+- `StationPrediction`: Contains predicted_waveform, predicted_pga, scale_factor, source/target coordinates
+- `ValidationResult`: Contains peak_metrics, spectrum_metrics, time_series_metrics, overall_score, grade (A-F)
 
 ### Typical Workflow
 
@@ -197,3 +206,30 @@ The simulation page uses Dash background callbacks for long-running computations
 - Progress bar updates in real-time during simulation
 - "Run Simulation" button is disabled while simulation is in progress
 - Prevents duplicate simulation requests
+
+### Wave Prediction Page
+
+The Wave Prediction page (`/wave-prediction`) enables GMPE-based ground motion prediction:
+
+**Pages and Callbacks:**
+- `layouts/wave_prediction.py` - Page layout with event selection, station selection, results tabs
+- `callbacks/wave_prediction_callbacks.py` - 8 callbacks for event loading, prediction, transfer
+- `figures/validation_plots.py` - Waveform comparison, spectrum comparison, PGA scatter plots
+
+**User Flow:**
+1. Building Page: Set optional building location (lat/lon) for site-specific prediction
+2. Wave Prediction Page: Load event by USGS ID (e.g., `ci38457511` for Ridgecrest M7.1)
+3. Select target/source stations OR click "Predict at Building Location"
+4. Review validation metrics (PGA ratio, correlation, grade)
+5. Click "Use for Simulation" to transfer predicted waveform to Simulation page
+
+**State Schema (`state/schemas.py`):**
+- `BuildingParams`: Added `latitude`, `longitude` fields
+- `StationInfo`: Station metadata (id, network, lat, lon, distance, pga)
+- `PredictionState`: Full prediction workflow state (event info, stations, waveforms, metrics)
+
+**Key Callbacks:**
+- `load_event_data`: Fetches event from USGS, creates synthetic demo if ObsPy unavailable
+- `run_prediction`: Executes station-to-station prediction with GMPE scaling
+- `run_prediction_at_building`: Predicts at building location using all stations
+- `transfer_prediction_to_ground_motion`: Transfers predicted waveform to `store-ground-motion`

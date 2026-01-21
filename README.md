@@ -16,6 +16,7 @@ A Python package for seismic building response simulation with an interactive we
 - **Time History Analysis** - Newmark-beta integration for dynamic response
 - **Monte Carlo Analysis** - Uncertainty propagation with probabilistic bounds
 - **Sensor-Based Calibration** - Model updating from measured data
+- **Wave Propagation Prediction** - GMPE-based ground motion prediction at target locations
 - **Preset Configurations** - Built-in building types and earthquake scenarios
 
 ## Quick Start
@@ -91,12 +92,13 @@ pip install -e ".[dev,dashboard,data]"
 
 ## Web Dashboard
 
-The dashboard provides a complete workflow through four pages:
+The dashboard provides a complete workflow through five pages:
 
 ### 1. Building Configuration
 - Define number of stories, mass, stiffness, damping
 - Choose from preset building types (RC frames, steel, masonry, wood)
 - View natural periods and mode shapes
+- Set building location (latitude/longitude) for site-specific prediction
 - Import/export custom configurations as JSON
 
 ### 2. Ground Motion
@@ -105,14 +107,28 @@ The dashboard provides a complete workflow through four pages:
 - **Real Earthquakes**: Fetch actual records from SCEDC S3 (e.g., Ridgecrest 2019)
 - Built-in scenarios (Design Level, MCE, Near-Fault, etc.)
 
-### 3. Simulation
+### 3. Wave Prediction
+- **Event Loading**: Load earthquake events from USGS by event ID (e.g., `ci38457511` for 2019 Ridgecrest M7.1)
+- **Station Selection**: Select target and source stations for GMPE-based prediction
+- **Building Location**: Predict ground motion directly at building coordinates
+- **Validation**: Compare predictions against actual recordings with quality grades (A-F)
+- **Transfer to Simulation**: Send predicted waveform to structural analysis
+
+**Workflow:**
+1. Set building location on Building page (optional but enables site-specific prediction)
+2. Load an earthquake event by USGS ID
+3. Click "Predict at Building Location" or select target/source stations
+4. Review validation metrics and waveform comparison
+5. Click "Use for Simulation" to transfer predicted ground motion
+
+### 4. Simulation
 - Run time history analysis with real-time progress tracking
 - **Two-Axis Analysis**: Separate horizontal (lateral) and vertical (axial) response computation
 - **Vertical Stiffness Factor**: Configurable axial stiffness multiplier (10x-100x of lateral stiffness)
 - Optional Monte Carlo uncertainty analysis
 - Configurable number of samples and parameter uncertainty
 
-### 4. Results
+### 5. Results
 - Interactive time history plots (displacement, velocity, acceleration)
 - **Axis Selector**: View horizontal, vertical, or combined results in Time History and Drift Profile tabs
 - Inter-story drift profiles with performance thresholds
@@ -186,6 +202,11 @@ seismic-building-simulation/
 │   │   ├── scedc_s3.py     # SCEDC S3 fetcher
 │   │   ├── cache.py        # Local caching
 │   │   └── records.py      # Data structures
+│   ├── prediction/         # Wave propagation prediction
+│   │   ├── gmpe/           # Ground Motion Prediction Equations
+│   │   ├── waveform_prediction.py  # GMPE-based waveform scaling
+│   │   ├── distance.py     # Distance calculations
+│   │   └── validation.py   # Prediction validation metrics
 │   └── dashboard/          # Plotly Dash web interface
 │       ├── app.py          # Dash application
 │       ├── layouts/        # Page layouts
@@ -196,6 +217,7 @@ seismic-building-simulation/
 ├── examples/
 │   ├── run_workflow.py     # Complete Python workflow
 │   ├── run_real_earthquake.py  # Real data example
+│   ├── run_wave_prediction.py  # Wave prediction example
 │   └── presets/            # Example JSON presets
 ├── tests/                  # Test suite
 ├── Dockerfile              # Base image
@@ -262,6 +284,46 @@ mc_result = ua.run_mc_ensemble(
 
 stats = ua.get_drift_statistics()
 p_exceed = ua.get_probability_of_exceedance(threshold=0.02)
+```
+
+### Wave Propagation Prediction
+
+```python
+from seismic_twin.prediction import WaveformPredictor, BooreAtkinson2008
+from seismic_twin.prediction import compute_epicentral_distance
+
+# Create GMPE-based predictor
+gmpe = BooreAtkinson2008()
+predictor = WaveformPredictor(gmpe=gmpe)
+
+# Predict waveform at target location using source station recording
+prediction = predictor.predict_at_location(
+    source_waveform=source_acceleration,        # Source station recording
+    source_lat=35.77, source_lon=-117.60,       # Source station location
+    target_lat=35.70, target_lon=-117.55,       # Target location
+    event_lat=35.766, event_lon=-117.605,       # Earthquake epicenter
+    event_depth=10.0,                           # Depth in km
+    event_magnitude=7.1,                        # Moment magnitude
+    dt=0.01,                                    # Time step
+)
+
+# Access predicted waveform
+predicted_acceleration = prediction.predicted_waveform
+scale_factor = prediction.scale_factor
+predicted_pga = prediction.predicted_pga
+
+# Validate prediction against actual recording (if available)
+from seismic_twin.prediction import PredictionValidator
+validator = PredictionValidator()
+result = validator.validate(
+    actual=actual_waveform,
+    predicted=predicted_waveform,
+    dt=0.01,
+)
+
+print(f"PGA Ratio: {result.peak_metrics.pga_ratio:.2f}")
+print(f"Correlation: {result.time_series_metrics.correlation:.3f}")
+print(f"Grade: {result.grade}")  # A, B, C, D, or F
 ```
 
 ## Running Tests

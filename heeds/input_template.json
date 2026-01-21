@@ -1,0 +1,13 @@
+{
+  "building": {
+    "n_stories": "<n_stories>",
+    "mass_per_floor": "<mass_per_floor>",
+    "stiffness_per_story": "<stiffness_per_story>",
+    "damping_ratio": "<damping_ratio>",
+    "story_height": "<story_height>"
+  },
+  "ground_motion": {
+    "source": "file",
+    "file_path": "ground_motion.json"
+  }
+}

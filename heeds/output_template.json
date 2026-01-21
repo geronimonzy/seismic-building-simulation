@@ -1,0 +1,11 @@
+{
+  "max_drift": 0.0,
+  "max_roof_disp": 0.0,
+  "max_floor_acc": 0.0,
+  "T1": 0.0,
+  "T2": 0.0,
+  "T3": 0.0,
+  "total_mass": 0.0,
+  "total_stiffness": 0.0,
+  "status": "success"
+}

@@ -17,6 +17,7 @@ from seismic_twin.dashboard.layouts import (
     create_results_layout,
     create_sidebar,
     create_simulation_layout,
+    create_wave_prediction_layout,
 )
 from seismic_twin.dashboard.state import create_stores
 from seismic_twin.dashboard.tasks import get_background_callback_manager
@@ -87,6 +88,7 @@ def create_app(debug: bool = False) -> Dash:
         "/ground-motion": create_ground_motion_layout,
         "/simulation": create_simulation_layout,
         "/results": create_results_layout,
+        "/wave-prediction": create_wave_prediction_layout,
     }
 
     # Register URL routing callback
