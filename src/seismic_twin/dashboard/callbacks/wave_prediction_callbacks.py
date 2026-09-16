@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import dash
 import dash_bootstrap_components as dbc
 import numpy as np
 from dash import Dash, Input, Output, State, callback_context, html
@@ -188,9 +187,7 @@ def register_wave_prediction_callbacks(app: Dash) -> None:
 
         try:
             # Run prediction using synthetic data for demonstration
-            result = _run_synthetic_prediction(
-                state, target_station, source_stations
-            )
+            result = _run_synthetic_prediction(state, target_station, source_stations)
 
             # Update state with results
             state.target_station_id = target_station
@@ -335,11 +332,7 @@ def register_wave_prediction_callbacks(app: Dash) -> None:
         building = BuildingParams(**building_data)
 
         # Show option if event is loaded AND building has location set
-        if (
-            pred_state.loaded
-            and building.latitude is not None
-            and building.longitude is not None
-        ):
+        if pred_state.loaded and building.latitude is not None and building.longitude is not None:
             return {"display": "block"}
         return {"display": "none"}
 
@@ -396,7 +389,9 @@ def register_wave_prediction_callbacks(app: Dash) -> None:
 
             # Update state with results
             pred_state.target_station_id = "building"
-            pred_state.selected_source_stations = [s.station_id for s in pred_state.available_stations]
+            pred_state.selected_source_stations = [
+                s.station_id for s in pred_state.available_stations
+            ]
             pred_state.time = result["time"]
             pred_state.actual_waveform = []  # No actual for building location
             pred_state.predicted_waveform = result["predicted"]
@@ -471,18 +466,14 @@ def _run_prediction_at_location(
 
     # Compute distance from epicenter to target
     target_dist = compute_epicentral_distance(
-        state.event_lat, state.event_lon,
-        target_lat, target_lon
+        state.event_lat, state.event_lon, target_lat, target_lon
     )
 
     # Find closest station for source waveform
     source_info = None
     min_dist = float("inf")
     for s in state.available_stations:
-        dist = compute_epicentral_distance(
-            target_lat, target_lon,
-            s.latitude, s.longitude
-        )
+        dist = compute_epicentral_distance(target_lat, target_lon, s.latitude, s.longitude)
         if dist < min_dist:
             min_dist = dist
             source_info = s
@@ -492,13 +483,11 @@ def _run_prediction_at_location(
 
     # Compute source Rjb distance
     source_rjb = compute_epicentral_distance(
-        state.event_lat, state.event_lon,
-        source_info.latitude, source_info.longitude
+        state.event_lat, state.event_lon, source_info.latitude, source_info.longitude
     )
 
     # Generate synthetic waveforms
     source_pga = gmpe.predict_pga(state.event_magnitude, source_rjb)
-    target_pga = gmpe.predict_pga(state.event_magnitude, target_dist)
 
     # Generate source waveform
     time, source_waveform = generate_synthetic_ground_motion(
@@ -560,7 +549,9 @@ def _create_building_prediction_metrics(result: dict, building: BuildingParams) 
                         [
                             dbc.CardBody(
                                 [
-                                    html.H4(f"{result['target_distance_km']:.1f} km", className="mb-0"),
+                                    html.H4(
+                                        f"{result['target_distance_km']:.1f} km", className="mb-0"
+                                    ),
                                     html.Small("Distance to Epicenter", className="text-muted"),
                                 ],
                                 className="text-center",
@@ -594,22 +585,32 @@ def _create_building_prediction_metrics(result: dict, building: BuildingParams) 
             [
                 html.Tbody(
                     [
-                        html.Tr([
-                            html.Td("Building Location:"),
-                            html.Td(f"({building.latitude:.4f}, {building.longitude:.4f})"),
-                        ]),
-                        html.Tr([
-                            html.Td("Source Station:"),
-                            html.Td(result["source_station"]),
-                        ]),
-                        html.Tr([
-                            html.Td("Source Distance:"),
-                            html.Td(f"{result['source_distance_km']:.1f} km from epicenter"),
-                        ]),
-                        html.Tr([
-                            html.Td("Note:"),
-                            html.Td("Prediction based on GMPE scaling - no validation available"),
-                        ]),
+                        html.Tr(
+                            [
+                                html.Td("Building Location:"),
+                                html.Td(f"({building.latitude:.4f}, {building.longitude:.4f})"),
+                            ]
+                        ),
+                        html.Tr(
+                            [
+                                html.Td("Source Station:"),
+                                html.Td(result["source_station"]),
+                            ]
+                        ),
+                        html.Tr(
+                            [
+                                html.Td("Source Distance:"),
+                                html.Td(f"{result['source_distance_km']:.1f} km from epicenter"),
+                            ]
+                        ),
+                        html.Tr(
+                            [
+                                html.Td("Note:"),
+                                html.Td(
+                                    "Prediction based on GMPE scaling - no validation available"
+                                ),
+                            ]
+                        ),
                     ]
                 )
             ],
@@ -663,16 +664,17 @@ def _load_event_from_usgs(event_id: str) -> tuple[dict, list]:
         for network in inventory:
             for station in network:
                 dist_m, _, _ = gps2dist_azimuth(
-                    origin.latitude, origin.longitude,
-                    station.latitude, station.longitude
+                    origin.latitude, origin.longitude, station.latitude, station.longitude
                 )
-                stations.append({
-                    "station": station.code,
-                    "network": network.code,
-                    "latitude": station.latitude,
-                    "longitude": station.longitude,
-                    "distance_km": dist_m / 1000.0,
-                })
+                stations.append(
+                    {
+                        "station": station.code,
+                        "network": network.code,
+                        "latitude": station.latitude,
+                        "longitude": station.longitude,
+                        "distance_km": dist_m / 1000.0,
+                    }
+                )
 
     # Sort by distance
     stations.sort(key=lambda x: x["distance_km"])
@@ -683,11 +685,41 @@ def _load_event_from_usgs(event_id: str) -> tuple[dict, list]:
     if not stations:
         # Use default Ridgecrest stations if none found
         stations = [
-            {"station": "CLC", "network": "CI", "latitude": 35.816, "longitude": -117.598, "distance_km": 17.5},
-            {"station": "JRC2", "network": "CI", "latitude": 35.983, "longitude": -117.809, "distance_km": 22.1},
-            {"station": "SRT", "network": "CI", "latitude": 35.546, "longitude": -117.276, "distance_km": 28.3},
-            {"station": "TOW2", "network": "CI", "latitude": 36.419, "longitude": -117.197, "distance_km": 48.2},
-            {"station": "MPM", "network": "CI", "latitude": 36.058, "longitude": -117.489, "distance_km": 55.1},
+            {
+                "station": "CLC",
+                "network": "CI",
+                "latitude": 35.816,
+                "longitude": -117.598,
+                "distance_km": 17.5,
+            },
+            {
+                "station": "JRC2",
+                "network": "CI",
+                "latitude": 35.983,
+                "longitude": -117.809,
+                "distance_km": 22.1,
+            },
+            {
+                "station": "SRT",
+                "network": "CI",
+                "latitude": 35.546,
+                "longitude": -117.276,
+                "distance_km": 28.3,
+            },
+            {
+                "station": "TOW2",
+                "network": "CI",
+                "latitude": 36.419,
+                "longitude": -117.197,
+                "distance_km": 48.2,
+            },
+            {
+                "station": "MPM",
+                "network": "CI",
+                "latitude": 36.058,
+                "longitude": -117.489,
+                "distance_km": 55.1,
+            },
         ]
 
     return event_info, stations
@@ -706,11 +738,41 @@ def _create_synthetic_demo_response(event_id: str, state: PredictionState):
     }
 
     stations = [
-        {"station": "STA1", "network": "SY", "latitude": 35.85, "longitude": -117.50, "distance_km": 15.2},
-        {"station": "STA2", "network": "SY", "latitude": 35.70, "longitude": -117.35, "distance_km": 24.8},
-        {"station": "STA3", "network": "SY", "latitude": 35.55, "longitude": -117.70, "distance_km": 32.1},
-        {"station": "STA4", "network": "SY", "latitude": 35.90, "longitude": -117.80, "distance_km": 38.5},
-        {"station": "STA5", "network": "SY", "latitude": 35.45, "longitude": -117.50, "distance_km": 45.3},
+        {
+            "station": "STA1",
+            "network": "SY",
+            "latitude": 35.85,
+            "longitude": -117.50,
+            "distance_km": 15.2,
+        },
+        {
+            "station": "STA2",
+            "network": "SY",
+            "latitude": 35.70,
+            "longitude": -117.35,
+            "distance_km": 24.8,
+        },
+        {
+            "station": "STA3",
+            "network": "SY",
+            "latitude": 35.55,
+            "longitude": -117.70,
+            "distance_km": 32.1,
+        },
+        {
+            "station": "STA4",
+            "network": "SY",
+            "latitude": 35.90,
+            "longitude": -117.80,
+            "distance_km": 38.5,
+        },
+        {
+            "station": "STA5",
+            "network": "SY",
+            "latitude": 35.45,
+            "longitude": -117.50,
+            "distance_km": 45.3,
+        },
     ]
 
     # Update state
@@ -762,22 +824,34 @@ def _create_synthetic_demo_response(event_id: str, state: PredictionState):
 def _create_event_info_display(event_info: dict) -> list:
     """Create event information display elements."""
     return [
-        html.P([
-            html.Strong("Magnitude: "),
-            f"M{event_info['magnitude']:.1f}",
-        ], className="mb-1"),
-        html.P([
-            html.Strong("Location: "),
-            f"{event_info['latitude']:.3f}, {event_info['longitude']:.3f}",
-        ], className="mb-1"),
-        html.P([
-            html.Strong("Depth: "),
-            f"{event_info['depth_km']:.1f} km",
-        ], className="mb-1"),
-        html.P([
-            html.Strong("Region: "),
-            event_info["region"],
-        ], className="mb-0"),
+        html.P(
+            [
+                html.Strong("Magnitude: "),
+                f"M{event_info['magnitude']:.1f}",
+            ],
+            className="mb-1",
+        ),
+        html.P(
+            [
+                html.Strong("Location: "),
+                f"{event_info['latitude']:.3f}, {event_info['longitude']:.3f}",
+            ],
+            className="mb-1",
+        ),
+        html.P(
+            [
+                html.Strong("Depth: "),
+                f"{event_info['depth_km']:.1f} km",
+            ],
+            className="mb-1",
+        ),
+        html.P(
+            [
+                html.Strong("Region: "),
+                event_info["region"],
+            ],
+            className="mb-0",
+        ),
     ]
 
 
@@ -787,10 +861,17 @@ def _run_synthetic_prediction(
     source_stations: list[str],
 ) -> dict:
     """Run prediction using synthetic data for demonstration."""
-    from seismic_twin.ground_motion.synthetic import generate_synthetic_ground_motion, compute_response_spectrum
-    from seismic_twin.prediction import BooreAtkinson2008, WaveformPredictor, PredictionValidator
+    from seismic_twin.analysis.metrics import (
+        compute_arias_intensity,
+        compute_correlation,
+        compute_nrmse,
+    )
+    from seismic_twin.ground_motion.synthetic import (
+        compute_response_spectrum,
+        generate_synthetic_ground_motion,
+    )
+    from seismic_twin.prediction import BooreAtkinson2008
     from seismic_twin.prediction.distance import compute_epicentral_distance
-    from seismic_twin.analysis.metrics import compute_nrmse, compute_correlation, compute_arias_intensity
 
     gmpe = BooreAtkinson2008()
 
@@ -806,8 +887,7 @@ def _run_synthetic_prediction(
 
     # Compute target distance
     target_dist = compute_epicentral_distance(
-        state.event_lat, state.event_lon,
-        target_info.latitude, target_info.longitude
+        state.event_lat, state.event_lon, target_info.latitude, target_info.longitude
     )
 
     # Find closest source station
@@ -816,8 +896,7 @@ def _run_synthetic_prediction(
     for s in state.available_stations:
         if s.station_id in source_stations and s.station_id != target_station:
             dist = compute_epicentral_distance(
-                target_info.latitude, target_info.longitude,
-                s.latitude, s.longitude
+                target_info.latitude, target_info.longitude, s.latitude, s.longitude
             )
             if dist < source_dist:
                 source_dist = dist
@@ -828,8 +907,7 @@ def _run_synthetic_prediction(
 
     # Compute source Rjb distance
     source_rjb = compute_epicentral_distance(
-        state.event_lat, state.event_lon,
-        source_info.latitude, source_info.longitude
+        state.event_lat, state.event_lon, source_info.latitude, source_info.longitude
     )
 
     # Generate synthetic waveforms
@@ -929,7 +1007,10 @@ def _create_metrics_display(result: dict) -> list:
                         [
                             dbc.CardBody(
                                 [
-                                    html.H3(grade, className=f"text-{grade_colors.get(grade, 'secondary')} mb-0"),
+                                    html.H3(
+                                        grade,
+                                        className=f"text-{grade_colors.get(grade, 'secondary')} mb-0",
+                                    ),
                                     html.Small("Quality Grade", className="text-muted"),
                                 ],
                                 className="text-center",
@@ -994,10 +1075,19 @@ def _create_metrics_display(result: dict) -> list:
                 html.Tbody(
                     [
                         html.Tr([html.Td("Actual PGA:"), html.Td(f"{result['actual_pga']:.4f} g")]),
-                        html.Tr([html.Td("Predicted PGA:"), html.Td(f"{result['predicted_pga']:.4f} g")]),
+                        html.Tr(
+                            [html.Td("Predicted PGA:"), html.Td(f"{result['predicted_pga']:.4f} g")]
+                        ),
                         html.Tr([html.Td("PGA Error:"), html.Td(f"{result['pga_error']:.1f}%")]),
-                        html.Tr([html.Td("Arias Intensity Ratio:"), html.Td(f"{result['arias_ratio']:.2f}")]),
-                        html.Tr([html.Td("Scale Factor:"), html.Td(f"{result['scale_factor']:.3f}")]),
+                        html.Tr(
+                            [
+                                html.Td("Arias Intensity Ratio:"),
+                                html.Td(f"{result['arias_ratio']:.2f}"),
+                            ]
+                        ),
+                        html.Tr(
+                            [html.Td("Scale Factor:"), html.Td(f"{result['scale_factor']:.3f}")]
+                        ),
                         html.Tr([html.Td("Source Station:"), html.Td(result["source_station"])]),
                     ]
                 )

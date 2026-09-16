@@ -47,7 +47,7 @@ def create_navbar() -> dbc.Navbar:
                             dbc.NavItem(
                                 dbc.NavLink(
                                     [html.I(className="bi bi-github me-1"), "GitHub"],
-                                    href="https://github.com",
+                                    href="https://github.com/geronimonzy/seismic-building-simulation",
                                     external_link=True,
                                     target="_blank",
                                 )

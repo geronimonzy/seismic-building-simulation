@@ -1,11 +1,14 @@
 # Seismic Digital Twin
 
-[![Tests](https://github.com/your-org/seismic-building-simulation/actions/workflows/tests.yml/badge.svg)](https://github.com/your-org/seismic-building-simulation/actions/workflows/tests.yml)
-[![Code Quality](https://github.com/your-org/seismic-building-simulation/actions/workflows/quality.yml/badge.svg)](https://github.com/your-org/seismic-building-simulation/actions/workflows/quality.yml)
+[![Tests](https://github.com/geronimonzy/seismic-building-simulation/actions/workflows/tests.yml/badge.svg)](https://github.com/geronimonzy/seismic-building-simulation/actions/workflows/tests.yml)
+[![Code Quality](https://github.com/geronimonzy/seismic-building-simulation/actions/workflows/quality.yml/badge.svg)](https://github.com/geronimonzy/seismic-building-simulation/actions/workflows/quality.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 A Python package for seismic building response simulation with an interactive web dashboard, real earthquake data integration, and uncertainty quantification.
+
+![Seismic Twin dashboard showing simulation results](docs/images/dashboard_results.png)
 
 ## Features
 
@@ -74,7 +77,7 @@ print(f"Max drift: {np.max(metrics.inter_story_drift_ratio)*100:.2f}%")
 
 ```bash
 # Clone repository
-git clone https://github.com/your-repo/seismic-building-simulation.git
+git clone https://github.com/geronimonzy/seismic-building-simulation.git
 cd seismic-building-simulation
 
 # Basic installation
@@ -93,6 +96,8 @@ pip install -e ".[dev,dashboard,data]"
 ## Web Dashboard
 
 The dashboard provides a complete workflow through five pages:
+
+![Building configuration page with modal properties and mode shapes](docs/images/dashboard_building.png)
 
 ### 1. Building Configuration
 - Define number of stories, mass, stiffness, damping
@@ -161,6 +166,19 @@ Built-in presets for quick setup:
 
 Custom presets can be imported/exported as JSON files. See `examples/presets/` for examples.
 
+## Python Workflow Example
+
+`examples/run_workflow.py` runs the full pipeline without the dashboard: synthetic ground motion,
+time history analysis, sensor-based calibration, and Monte Carlo uncertainty bounds. It writes a
+summary figure to `output/digital_twin_results.png`:
+
+![Six-panel summary figure from the example workflow](docs/images/digital_twin_results.png)
+
+`examples/run_real_earthquake.py` runs the same pipeline on the 2019 Ridgecrest M7.1 record from
+station CI.CLC (requires the `data` extra and network access):
+
+![Summary figure for the 2019 Ridgecrest M7.1 record](docs/images/real_earthquake_results.png)
+
 ## Real Earthquake Data
 
 Fetch actual seismic records from SCEDC's AWS S3 archive:
@@ -219,6 +237,9 @@ seismic-building-simulation/
 │   ├── run_real_earthquake.py  # Real data example
 │   ├── run_wave_prediction.py  # Wave prediction example
 │   └── presets/            # Example JSON presets
+├── docs/
+│   ├── images/             # README figures and screenshots
+│   └── simulation_report.md  # Technical report on the simulation pipeline
 ├── tests/                  # Test suite
 ├── Dockerfile              # Base image
 ├── Dockerfile.dashboard    # Dashboard image
@@ -289,41 +310,46 @@ p_exceed = ua.get_probability_of_exceedance(threshold=0.02)
 ### Wave Propagation Prediction
 
 ```python
-from seismic_twin.prediction import WaveformPredictor, BooreAtkinson2008
-from seismic_twin.prediction import compute_epicentral_distance
+from datetime import datetime
 
-# Create GMPE-based predictor
-gmpe = BooreAtkinson2008()
-predictor = WaveformPredictor(gmpe=gmpe)
+from seismic_twin.data import SCEDCS3Fetcher
+from seismic_twin.data.records import EventInfo
+from seismic_twin.prediction import BooreAtkinson2008, PredictionValidator, WaveformPredictor
 
-# Predict waveform at target location using source station recording
+# Earthquake event (2019 Ridgecrest M7.1)
+event = EventInfo(
+    event_id="ci38457511",
+    origin_time=datetime(2019, 7, 6, 3, 19, 53),
+    latitude=35.7695, longitude=-117.5993, depth_km=8.0,
+    magnitude=7.1, magnitude_type="Mw",
+    region="Ridgecrest, CA", source_catalog="USGS",
+)
+
+# Recordings from nearby stations (see examples/run_wave_prediction.py for a
+# synthetic, network-free alternative)
+fetcher = SCEDCS3Fetcher()
+records = [
+    fetcher.get_ground_motion_record(event_id=event.event_id, station=s)
+    for s in ["CLC", "JRC2", "SRT"]
+]
+
+# Predict the waveform at an arbitrary site using the nearest station
+predictor = WaveformPredictor(gmpe=BooreAtkinson2008(), vs30=760.0)
 prediction = predictor.predict_at_location(
-    source_waveform=source_acceleration,        # Source station recording
-    source_lat=35.77, source_lon=-117.60,       # Source station location
-    target_lat=35.70, target_lon=-117.55,       # Target location
-    event_lat=35.766, event_lon=-117.605,       # Earthquake epicenter
-    event_depth=10.0,                           # Depth in km
-    event_magnitude=7.1,                        # Moment magnitude
-    dt=0.01,                                    # Time step
+    target_lat=35.70, target_lon=-117.55, target_station_id="my_site",
+    event_info=event, source_records=records, source_selection="nearest",
 )
+prediction.predicted_waveform   # acceleration time history (g)
+prediction.predicted_pga        # peak ground acceleration (g)
+prediction.scale_factor         # GMPE amplitude scaling applied
 
-# Access predicted waveform
-predicted_acceleration = prediction.predicted_waveform
-scale_factor = prediction.scale_factor
-predicted_pga = prediction.predicted_pga
-
-# Validate prediction against actual recording (if available)
-from seismic_twin.prediction import PredictionValidator
+# Cross-validate: predict each station from the others and grade the result
 validator = PredictionValidator()
-result = validator.validate(
-    actual=actual_waveform,
-    predicted=predicted_waveform,
-    dt=0.01,
-)
-
-print(f"PGA Ratio: {result.peak_metrics.pga_ratio:.2f}")
-print(f"Correlation: {result.time_series_metrics.correlation:.3f}")
-print(f"Grade: {result.grade}")  # A, B, C, D, or F
+pairs = predictor.predict_cross_validation(event, records)
+summary = validator.validate_cross_validation(pairs)
+for r in summary.individual_results:
+    print(f"{r.station_id}: PGA ratio {r.peak_metrics.pga_ratio:.2f}, "
+          f"correlation {r.timeseries_metrics.correlation:.2f}, grade {r.quality_grade}")
 ```
 
 ## Running Tests
@@ -348,4 +374,4 @@ pytest tests/test_building.py -v # Specific file
 
 ## License
 
-MIT License
+Released under the [MIT License](LICENSE).

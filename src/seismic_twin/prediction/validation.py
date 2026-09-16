@@ -14,7 +14,11 @@ from typing import TYPE_CHECKING
 import numpy as np
 from numpy.typing import NDArray
 
-from seismic_twin.analysis.metrics import compute_arias_intensity, compute_correlation, compute_nrmse
+from seismic_twin.analysis.metrics import (
+    compute_arias_intensity,
+    compute_correlation,
+    compute_nrmse,
+)
 from seismic_twin.ground_motion.synthetic import compute_response_spectrum
 
 if TYPE_CHECKING:
@@ -350,9 +354,7 @@ class PredictionValidator:
         _, predicted_sa = compute_response_spectrum(
             time, predicted, self.periods, self.damping_ratio
         )
-        _, actual_sa = compute_response_spectrum(
-            time, actual, self.periods, self.damping_ratio
-        )
+        _, actual_sa = compute_response_spectrum(time, actual, self.periods, self.damping_ratio)
 
         # Compute Sa ratios
         valid_mask = actual_sa > 1e-10

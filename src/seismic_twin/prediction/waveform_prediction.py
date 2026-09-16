@@ -8,7 +8,7 @@ GMPE-based amplitude scaling.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -267,14 +267,10 @@ class WaveformPredictor:
             Selected source record.
         """
         # Filter out target station from sources
-        valid_records = [
-            r for r in source_records if r.station != target_station_id
-        ]
+        valid_records = [r for r in source_records if r.station != target_station_id]
 
         if not valid_records:
-            raise ValueError(
-                f"No valid source stations available (target={target_station_id})"
-            )
+            raise ValueError(f"No valid source stations available (target={target_station_id})")
 
         if method == "nearest":
             # Select station closest to target

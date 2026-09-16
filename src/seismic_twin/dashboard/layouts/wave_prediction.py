@@ -165,7 +165,9 @@ def create_wave_prediction_layout() -> html.Div:
                                                     ),
                                                     dbc.Button(
                                                         [
-                                                            html.I(className="bi bi-geo-alt-fill me-2"),
+                                                            html.I(
+                                                                className="bi bi-geo-alt-fill me-2"
+                                                            ),
                                                             "Predict at Building Location",
                                                         ],
                                                         id="btn-predict-at-building",

@@ -120,7 +120,9 @@ def register_building_callbacks(app: Dash) -> None:
             location_str = ""
             if latitude is not None and longitude is not None:
                 location_str = f" @ ({latitude:.2f}, {longitude:.2f})"
-            sidebar_info = f"Building: {n_stories} stories, T1={model.natural_periods[0]:.2f}s{location_str}"
+            sidebar_info = (
+                f"Building: {n_stories} stories, T1={model.natural_periods[0]:.2f}s{location_str}"
+            )
 
             return (
                 params.model_dump(),

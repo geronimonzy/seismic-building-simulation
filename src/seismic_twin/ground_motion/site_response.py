@@ -12,9 +12,10 @@ Site Classes (NEHRP/ASCE 7):
 - E: Soft clay (Vs30 < 180 m/s)
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -76,11 +77,11 @@ class SiteProperties:
     vs30: float  # Average shear wave velocity in top 30m (m/s)
     resonance_freq: float  # Site resonance frequency (Hz)
     peak_amplification: float  # Peak amplification factor
-    soil_depth: Optional[float] = None  # Depth to bedrock (m)
+    soil_depth: float | None = None  # Depth to bedrock (m)
     damping: float = 0.05  # Soil damping ratio
 
     @classmethod
-    def from_vs30(cls, vs30: float, soil_depth: Optional[float] = None) -> "SiteProperties":
+    def from_vs30(cls, vs30: float, soil_depth: float | None = None) -> SiteProperties:
         """
         Create site properties from Vs30 value.
 
@@ -121,7 +122,7 @@ class SiteProperties:
         )
 
     @classmethod
-    def from_site_class(cls, site_class: SiteClass | str) -> "SiteProperties":
+    def from_site_class(cls, site_class: SiteClass | str) -> SiteProperties:
         """
         Create site properties from site class using typical values.
 

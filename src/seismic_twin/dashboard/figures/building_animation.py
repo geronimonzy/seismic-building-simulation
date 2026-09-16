@@ -65,7 +65,6 @@ def create_building_animation_figure(
         fig.update_layout(title="Building Animation", template="plotly_white")
         return fig
 
-    n_floors = len(story_heights)
     n_timesteps = len(time)
 
     # Compute floor elevations (cumulative heights)
@@ -425,7 +424,7 @@ def _compute_deformed_building(
     y_coords = []
 
     # Left side (bottom to top)
-    for i, (elev, disp) in enumerate(zip(floor_elevations, scaled_disp)):
+    for elev, disp in zip(floor_elevations, scaled_disp):
         x_coords.append(-half_width + disp)
         y_coords.append(elev)
 

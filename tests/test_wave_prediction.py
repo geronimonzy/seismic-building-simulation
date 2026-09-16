@@ -8,13 +8,13 @@ from datetime import datetime
 import numpy as np
 import pytest
 
+from seismic_twin.data.records import EventInfo
 from seismic_twin.prediction import (
     BooreAtkinson2008,
     PredictionValidator,
     WaveformPredictor,
     compute_epicentral_distance,
 )
-from seismic_twin.prediction.waveform_prediction import PredictionPair, StationPrediction
 from seismic_twin.prediction.validation import (
     PeakMetrics,
     SpectrumMetrics,
@@ -22,13 +22,14 @@ from seismic_twin.prediction.validation import (
     ValidationResult,
     ValidationSummary,
 )
-from seismic_twin.data.records import EventInfo
+from seismic_twin.prediction.waveform_prediction import PredictionPair, StationPrediction
 
 
 # Fixture for synthetic records
 @dataclass
 class MockRecord:
     """Mock ground motion record for testing."""
+
     time: np.ndarray
     acceleration: np.ndarray
     dt: float
@@ -74,9 +75,7 @@ def synthetic_records(event_info):
 
     records = []
     for station_id, lat, lon, _ in stations:
-        dist_km = compute_epicentral_distance(
-            event_info.latitude, event_info.longitude, lat, lon
-        )
+        dist_km = compute_epicentral_distance(event_info.latitude, event_info.longitude, lat, lon)
         expected_pga = gmpe.predict_pga(event_info.magnitude, dist_km)
 
         time, acceleration = generate_synthetic_ground_motion(
@@ -206,9 +205,7 @@ class TestWaveformPredictor:
         predictor = WaveformPredictor()
 
         with pytest.raises(ValueError, match="(?i)at least 2 records"):
-            predictor.predict_cross_validation(
-                event_info, [synthetic_records[0]]
-            )
+            predictor.predict_cross_validation(event_info, [synthetic_records[0]])
 
     def test_source_selection_nearest(self, event_info, synthetic_records):
         """Test nearest source station selection."""
@@ -406,8 +403,7 @@ class TestValidationResult:
         """Test creation of validation result."""
         peak = PeakMetrics(0.5, 0.5, 1.0, 0.0)
         spectrum = SpectrumMetrics(
-            np.array([0.1]), np.array([0.5]), np.array([0.5]),
-            1.0, 1.0, 1.0, 1.0
+            np.array([0.1]), np.array([0.5]), np.array([0.5]), 1.0, 1.0, 1.0, 1.0
         )
         timeseries = TimeSeriesMetrics(0.1, 0.95, 1.0, 0.9)
 

@@ -1,7 +1,9 @@
 """Callbacks for the simulation page."""
 
+from __future__ import annotations
+
 import numpy as np
-from dash import Dash, Input, Output, State, callback, ctx
+from dash import Dash, Input, Output, State
 
 
 def _get_check_icon_and_color(is_ok: bool) -> tuple[str, str | None]:

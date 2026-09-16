@@ -1,8 +1,10 @@
 """Preset configurations for building and ground motion parameters."""
 
+from __future__ import annotations
+
 import base64
 import json
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 import dash_bootstrap_components as dbc
 
@@ -272,7 +274,7 @@ def validate_preset_fields(data: dict[str, Any], required_fields: list[str]) -> 
 def create_import_alert(
     message: str,
     color: str,
-    duration: Optional[int] = None,
+    duration: int | None = None,
 ) -> dbc.Alert:
     """
     Create a dismissable alert for import/export operations.

@@ -5,12 +5,12 @@ Tests for Ground Motion Prediction Equations (GMPE) module.
 import numpy as np
 import pytest
 
-from seismic_twin.prediction.gmpe import BooreAtkinson2008, GMPEInput, GMPEOutput
 from seismic_twin.prediction.distance import (
     compute_epicentral_distance,
     compute_hypocentral_distance,
     compute_rjb_distance,
 )
+from seismic_twin.prediction.gmpe import BooreAtkinson2008, GMPEInput, GMPEOutput
 
 
 class TestGMPEInput:
@@ -116,9 +116,10 @@ class TestBooreAtkinson2008:
 
         # PGA should decrease monotonically with distance
         for i in range(len(pga_values) - 1):
-            assert pga_values[i] > pga_values[i + 1], \
-                f"PGA at {distances[i]}km ({pga_values[i]:.4f}) should be > " \
-                f"PGA at {distances[i+1]}km ({pga_values[i+1]:.4f})"
+            assert pga_values[i] > pga_values[i + 1], (
+                f"PGA at {distances[i]}km ({pga_values[i]:.4f}) should be > "
+                f"PGA at {distances[i + 1]}km ({pga_values[i + 1]:.4f})"
+            )
 
     def test_pga_increases_with_magnitude(self, gmpe):
         """Test that PGA increases with increasing magnitude."""
@@ -131,9 +132,10 @@ class TestBooreAtkinson2008:
 
         # PGA should increase monotonically with magnitude
         for i in range(len(pga_values) - 1):
-            assert pga_values[i] < pga_values[i + 1], \
-                f"PGA at M{magnitudes[i]} ({pga_values[i]:.4f}) should be < " \
-                f"PGA at M{magnitudes[i+1]} ({pga_values[i+1]:.4f})"
+            assert pga_values[i] < pga_values[i + 1], (
+                f"PGA at M{magnitudes[i]} ({pga_values[i]:.4f}) should be < "
+                f"PGA at M{magnitudes[i + 1]} ({pga_values[i + 1]:.4f})"
+            )
 
     def test_spectrum_shape(self, gmpe):
         """Test that spectrum has expected shape."""
@@ -240,8 +242,10 @@ class TestDistanceFunctions:
         """Test distance calculation with known value."""
         # LA to San Francisco is approximately 559 km
         dist = compute_epicentral_distance(
-            34.0522, -118.2437,  # LA
-            37.7749, -122.4194,  # SF
+            34.0522,
+            -118.2437,  # LA
+            37.7749,
+            -122.4194,  # SF
         )
         assert dist == pytest.approx(559, rel=0.02)  # 2% tolerance
 

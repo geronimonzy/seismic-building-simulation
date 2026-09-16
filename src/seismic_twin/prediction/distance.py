@@ -107,18 +107,14 @@ def compute_rjb_distance(
     closest point on the surface projection of the fault.
     """
     # Compute epicentral distance
-    repi = compute_epicentral_distance(
-        station_lat, station_lon, epicenter_lat, epicenter_lon
-    )
+    repi = compute_epicentral_distance(station_lat, station_lon, epicenter_lat, epicenter_lon)
 
     # For small events or no fault model, use point source approximation
     if magnitude < 6.0 or fault_model is None:
         return repi
 
     # For larger events with fault model, compute distance to fault surface
-    rjb = _compute_rjb_from_fault(
-        station_lat, station_lon, fault_model
-    )
+    rjb = _compute_rjb_from_fault(station_lat, station_lon, fault_model)
 
     return rjb
 
@@ -150,7 +146,6 @@ def _compute_rjb_from_fault(
     """
     # Extract fault parameters
     hypo_lat, hypo_lon, _ = fault_model.hypocenter
-    strike = np.radians(fault_model.strike)
     length = fault_model.length_km
     dip = np.radians(fault_model.dip)
     width = fault_model.width_km
@@ -218,9 +213,7 @@ def _compute_bearing(
     dlon = np.radians(lon2 - lon1)
 
     x = np.sin(dlon) * np.cos(lat2_rad)
-    y = np.cos(lat1_rad) * np.sin(lat2_rad) - np.sin(lat1_rad) * np.cos(lat2_rad) * np.cos(
-        dlon
-    )
+    y = np.cos(lat1_rad) * np.sin(lat2_rad) - np.sin(lat1_rad) * np.cos(lat2_rad) * np.cos(dlon)
 
     bearing = np.degrees(np.arctan2(x, y))
     return (bearing + 360) % 360
@@ -254,9 +247,7 @@ def compute_hypocentral_distance(
     float
         Hypocentral distance in kilometers.
     """
-    repi = compute_epicentral_distance(
-        station_lat, station_lon, epicenter_lat, epicenter_lon
-    )
+    repi = compute_epicentral_distance(station_lat, station_lon, epicenter_lat, epicenter_lon)
     return np.sqrt(repi**2 + depth_km**2)
 
 

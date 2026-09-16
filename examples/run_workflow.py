@@ -11,9 +11,10 @@ This script demonstrates the full workflow for seismic building simulation:
 6. Run Monte Carlo uncertainty analysis (Phase 5)
 7. Generate visualization
 
-Output: digital_twin_results.png
+Output: output/digital_twin_results.png
 """
 
+import os
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
@@ -250,7 +251,8 @@ def main():
     fig.suptitle("Seismic Digital Twin - Analysis Results", fontsize=14, fontweight="bold", y=1.02)
 
     # Save figure
-    output_path = "digital_twin_results.png"
+    os.makedirs("output", exist_ok=True)
+    output_path = "output/digital_twin_results.png"
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
 

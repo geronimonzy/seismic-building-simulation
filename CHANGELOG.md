@@ -41,10 +41,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Test count: 34 → 105 tests
 - Code coverage: 42% → 85%
-- Python version requirement: 3.8+ → 3.9+
+- Python version requirement: 3.8+ → 3.9+ (`requires-python` in `pyproject.toml` now matches)
 - Updated README with CI badges
+- README badges, clone URL and dashboard GitHub link now point at the real repository
+- README shows dashboard screenshots and example result figures (`docs/images/`)
+- Example result figures moved from the repository root and `output/` into `docs/images/`;
+  `examples/run_workflow.py` now writes to `output/`, which is git-ignored
+- Added `LICENSE` file (MIT)
 
 ### Fixed
+- Python 3.9 import failure (`TypeError: unsupported operand type(s) for |`) caused by
+  PEP 604 unions in modules without `from __future__ import annotations`
+- Ruff lint errors (unused imports/variables, import sorting) and formatting in the
+  prediction and dashboard modules that were failing the Code Quality workflow
 - 43 ruff lint errors:
   - UP035/UP006: Deprecated typing imports (List→list, Dict→dict, Optional→X|None)
   - I001: Import sorting

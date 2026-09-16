@@ -208,3 +208,7 @@ __marimo__/
 
 
 .gittoken
+# Example outputs and local caches
+output/
+.seismic_cache/
+.playwright-mcp/
